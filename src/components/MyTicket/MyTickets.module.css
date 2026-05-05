@@ -1,0 +1,440 @@
+/* =============================================
+   MyTickets.module.css
+   Dark festival ticket UI — retro warmth on black
+   ============================================= */
+
+
+/* ---------- Root variables ---------- */
+@font-face {
+    font-family: "Kanit";
+    src: url("/assets/fonts/Kanit-Regular.ttf");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+.wrapper {
+    --gold: #8C7240;
+    --gold-light: #e2c06a;
+    --gold-dim: rgba(201, 168, 76, 0.18);
+    --surface: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #f0ebe2;
+    --muted: #878787;
+    --radius: 10px;
+
+    position: relative;
+    min-height: 100vh;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: "Kanit", sans-serif;
+    overflow: hidden;
+}
+
+
+
+/* ---------- Main container ---------- */
+.container {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ---------- Heading ---------- */
+.heading {
+    font-family: "Kanit-Bold";
+    font-size: 24px;
+    color: #fff;
+    margin-bottom: 24px;
+}
+
+/* ---------- Status tabs (top row) ---------- */
+.statusTabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.statusTab {
+    padding: 9px 20px;
+    border-radius: 999px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: "Kanit-Bold", sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.statusTab:hover {
+    border-color: var(--gold-dim);
+    color: var(--gold-light);
+}
+
+.statusTabActive {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #1a1200;
+    font-weight: 600;
+}
+
+/* ---------- Sub tabs (Sắp diễn ra / Đã kết thúc) ---------- */
+.subTabs {
+    display: flex;
+    gap: 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+}
+
+.subTab {
+    position: relative;
+    padding: 0 2px 12px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: "Kanit-Bold", sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.subTab::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gold);
+    border-radius: 2px;
+    transform: scaleX(0);
+    transition: transform 0.25s ease;
+}
+
+.subTab:hover {
+    color: var(--text);
+}
+
+.subTabActive {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.subTabActive::after {
+    transform: scaleX(1);
+}
+
+/* ---------- Content area ---------- */
+.content {
+    display: flex;
+    justify-content: center;
+}
+
+/* ---------- Empty state ---------- */
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    animation: fadeUp 0.5s ease both;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.illustrationWrap {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 0 0 2px #2a1a0a, 0 8px 40px rgba(0, 0, 0, 0.6),
+        0 0 60px rgba(201, 168, 76, 0.1);
+    animation: floatIdle 3.5s ease-in-out infinite;
+}
+
+@keyframes floatIdle {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+.illustration {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.emptyText {
+    font-size: 0.95rem;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+    margin: 0;
+}
+
+/* ---------- Buy button ---------- */
+.buyBtn {
+    margin-top: 4px;
+    padding: 12px 36px;
+    border: 1.5px solid var(--gold);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--gold-light);
+    font-family: "Kanit-Bold", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.25s, box-shadow 0.25s;
+}
+
+.buyBtn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    transform: translateX(-101%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 0;
+}
+
+.buyBtn span,
+.buyBtn {
+    position: relative;
+    z-index: 1;
+
+}
+
+.buyBtn:hover {
+    color: #1a1200;
+    box-shadow: 0 0 24px rgba(201, 168, 76, 0.35);
+}
+
+.buyBtn:hover::before {
+    transform: translateX(0);
+    color: #1a1200;
+
+}
+
+/* ---------- Ticket grid — full width list ---------- */
+/* ---------- Ticket Grid ---------- */
+.ticketGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+/* ---------- Ticket Card ---------- */
+.ticketCard {
+    display: flex;
+    align-items: stretch;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    overflow: hidden;
+    min-height: 90px;
+    transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: pointer;
+}
+
+.ticketCard:hover {
+    border-color: rgba(140, 114, 64, 0.45);
+    transform: translateY(-2px);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(140, 114, 64, 0.15) inset;
+}
+
+/* ---------- Left: Event Image ---------- */
+.cardImg {
+    width: 140px;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+    background: #0d0d1a;
+}
+
+.cardImg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease, filter 0.4s ease;
+    filter: brightness(0.9);
+}
+
+.ticketCard:hover .cardImg img {
+    transform: scale(1.07);
+    filter: brightness(1);
+}
+
+/* Gradient fade right edge of image */
+.cardImg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent 60%, var(--gold));
+    pointer-events: none;
+}
+
+/* ---------- Center: Card Body ---------- */
+.cardBody {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    padding: 14px 20px;
+    min-width: 0;
+}
+
+.cardTitle {
+    font-family: "Kanit-Bold", sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: #eae8f5;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.01em;
+}
+
+.cardType {
+    font-size: 13px;
+    color: #8a8aa0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cardPrice {
+    color: var(--gold-light);
+    font-weight: 500;
+}
+
+.cardMeta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.cardMeta span {
+    font-size: 12px;
+    color: #6e6d85;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ---------- Badge ---------- */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    width: fit-content;
+    margin-bottom: 2px;
+}
+
+.badgeValid {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.badgeSuccess {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.badgePending {
+    color: #facc15;
+    background: rgba(250, 204, 21, 0.1);
+    border: 1px solid rgba(250, 204, 21, 0.2);
+}
+
+.badgeUsed {
+    color: #94a3b8;
+    background: rgba(148, 163, 184, 0.08);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.badgeCancelled,
+.badgeInvalid {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+/* ---------- Right: QR Code ---------- */
+.qrWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 14px 18px;
+    flex-shrink: 0;
+    border-left: 1px dashed rgba(255, 255, 255, 0.07);
+    background: rgba(0, 0, 0, 0.15);
+    transition: background 0.25s;
+}
+
+.ticketCard:hover .qrWrap {
+    background: rgba(140, 114, 64, 0.06);
+}
+
+.qrImg {
+    width: 76px;
+    height: 76px;
+    border-radius: 6px;
+    background: #fff;
+    padding: 3px;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.ticketCard:hover .qrImg {
+    transform: scale(1.05);
+}
+
+.ticketIdText {
+    font-size: 10px;
+    color: #55546a;
+    letter-spacing: 0.05em;
+    text-align: center;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

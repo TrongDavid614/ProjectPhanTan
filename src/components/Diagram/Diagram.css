@@ -1,0 +1,36 @@
+.node path,
+.node polygon,
+.node rect {
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+  stroke: transparent;
+  stroke-width: 2;
+}
+
+.node:hover path, 
+.node:hover polygon, 
+.node:hover rect {
+  filter: brightness(1.2) drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+  transform: translateY(-6px); 
+}
+
+.node.active path,
+.node.active polygon,
+.node.active rect,
+.node:hover path,
+.node:hover polygon,
+.node:hover rect {
+  stroke: #00eaff; 
+  stroke-width: 3;
+  filter: brightness(1.4) drop-shadow(0 0 20px rgba(0, 234, 255, 0.8));
+}
+
+.node text {
+  pointer-events: none;
+  user-select: none;
+}
+
+.node.sold-out {
+  filter: grayscale(100%) opacity(0.25) !important;
+  pointer-events: none;
+}

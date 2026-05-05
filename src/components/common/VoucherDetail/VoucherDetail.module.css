@@ -1,0 +1,210 @@
+@font-face {
+  font-family: "KanitLocal";
+  src: url("/assets/fonts/Kanit/Kanit-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: voucher-detail-overlay-in 240ms ease-out;
+}
+
+.overlayClosing {
+  pointer-events: none;
+  animation: voucher-detail-overlay-out 220ms ease-in forwards;
+}
+
+.modal {
+  width: min(430px, 100%);
+  min-height: 580px;
+  border-radius: 20px;
+  background: #4b4b4b;
+  padding: 28px 22px 28px;
+  color: #fff;
+  font-family: "KanitLocal", "Kanit", "Segoe UI", sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
+  animation: voucher-detail-in 360ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.modalClosing {
+  animation: voucher-detail-out 220ms ease-in forwards;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.backButton {
+  position: absolute;
+  left: -6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  color: #d6c395;
+  cursor: pointer;
+  font-family: "KanitLocal", "Kanit", "Segoe UI", sans-serif;
+  font-size: 24px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.voucherCard {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  align-items: stretch;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 12px;
+  overflow: hidden;
+  min-height: 116px;
+}
+
+.logo {
+  border-right: 2px dashed rgba(255, 255, 255, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.logo img {
+  width: 80px;
+  max-height: 44px;
+  object-fit: contain;
+}
+
+.voucherInfo {
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.voucherInfo h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.voucherInfo p {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.expire {
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+  margin: 0 !important;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.section h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.section p {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+@keyframes voucher-detail-overlay-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes voucher-detail-overlay-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes voucher-detail-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+
+  70% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.01);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes voucher-detail-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(14px) scale(0.975);
+  }
+}
+
+@media (max-width: 480px) {
+  .modal {
+    padding: 22px 16px 22px;
+    gap: 16px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .voucherCard {
+    grid-template-columns: 88px 1fr;
+  }
+
+  .voucherInfo h3 {
+    font-size: 14px;
+  }
+
+  .backButton {
+    left: -2px;
+  }
+}

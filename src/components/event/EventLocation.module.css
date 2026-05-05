@@ -1,0 +1,43 @@
+.locationRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.locationRow svg {
+  margin-top: 4px;
+  transform: translateY(-2px);
+  width: 16px;
+  height: 16px;
+
+}
+
+.locationName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.price {
+  font-size: 20px;
+}
+
+.locationAddress {
+  margin-top: 4px;
+  font-size: 20px;
+  color: #9ca3af;
+}
+
+.gradientText {
+  background: linear-gradient(90deg, #cbb37a, #e6e6e6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.whiteText {
+  color: white;
+  background: none;
+  -webkit-text-fill-color: white;
+}
