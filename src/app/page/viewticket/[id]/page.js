@@ -5,17 +5,23 @@ import { useEffect, useState } from "react";
 import ViewTicketPage from "../viewticket";
 
 export default function Page() {
-    const { id } = useParams();
-    const [event, setEvent] = useState(null);
+  const { id } = useParams();
+  const [event, setEvent] = useState(null);
 
-    useEffect(() => {
+  useEffect(() => {
+    // Backend API disabled - no server configured
+    console.log("Fetching event for viewticket:", id);
+    setEvent(null);
+
+    /* Backend code - uncomment when backend is available:
         fetch(`/api/events/${id}`)
         .then(res => res.json())
         .then(data => setEvent(data));
-    }, [id]);
+        */
+  }, [id]);
 
-    if (!event)
-        return <div style={{ color: "white", padding: 50 }}>Đang tải...</div>;
+  if (!event)
+    return <div style={{ color: "white", padding: 50 }}>Đang tải...</div>;
 
-    return <ViewTicketPage event={event} />;
+  return <ViewTicketPage event={event} />;
 }

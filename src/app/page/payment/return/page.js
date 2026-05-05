@@ -26,6 +26,11 @@ export default function PaymentReturnPage() {
         const raw = window.localStorage.getItem("temp_payment_context");
         const paymentContext = raw ? JSON.parse(raw) : null;
 
+        console.log("Confirming payment:", queryObject);
+        setStatus("success");
+        setMessage("Thanh toán thành công (mock - backend disabled)");
+
+        /* Backend code - uncomment when backend is available:
         const response = await fetch("/api/payment/confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -45,6 +50,7 @@ export default function PaymentReturnPage() {
         window.localStorage.removeItem("temp_cart");
         setStatus("success");
         setMessage(data?.message || "Thanh toán thành công");
+        */
       } catch (error) {
         if (!isMounted) return;
         setStatus("error");

@@ -8,14 +8,34 @@ import { useEffect, useState, Suspense } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 const EyeIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
     <circle cx="12" cy="12" r="3" />
   </svg>
 );
 
 const EyeOffIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
     <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
     <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
@@ -37,6 +57,13 @@ function LoginForm() {
     e.preventDefault();
     setError(""); // reset lỗi cũ
 
+    // Backend API disabled - no server configured
+    console.log("Login attempted:", { account, password });
+    setError(
+      "Backend không được cấu hình. Vui lòng khôi phục backend service.",
+    );
+
+    /* Backend code - uncomment when backend is available:
     const res = await fetch("/api/users/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -54,16 +81,24 @@ function LoginForm() {
       const data = await res.json();
       setError(data.message || "Sai tài khoản hoặc mật khẩu");
     }
+    */
   };
 
   return (
     <div className={styles.loginCard}>
-      <Link href="/" className="absolute top-6 left-6 text-gray-400 text-sm flex items-center gap-2 hover:text-white transition italic z-20">
+      <Link
+        href="/"
+        className="absolute top-6 left-6 text-gray-400 text-sm flex items-center gap-2 hover:text-white transition italic z-20"
+      >
         ← Trở về
       </Link>
 
       <div className={styles.logoArea}>
-        <img src="/assets/images/logo.png" alt="8THREADS" style={{ width: "110px" }} />
+        <img
+          src="/assets/images/logo.png"
+          alt="8THREADS"
+          style={{ width: "110px" }}
+        />
         <h2 className={styles.title}>Login</h2>
       </div>
 
@@ -87,22 +122,30 @@ function LoginForm() {
             required
           />
 
-          <button type="button" onClick={() => setShowPass(!showPass)} className={styles.eyeButton}>
+          <button
+            type="button"
+            onClick={() => setShowPass(!showPass)}
+            className={styles.eyeButton}
+          >
             {showPass ? <EyeOffIcon /> : <EyeIcon />}
           </button>
         </div>
 
-        <p className={styles.errorText}>
-          {error || "\u00A0"}
-        </p>
+        <p className={styles.errorText}>{error || "\u00A0"}</p>
 
         <div className="text-right mb-6">
-          <a href="#" className="text-[11px] text-gray-500 hover:text-[#cbb37a] transition">
+          <a
+            href="#"
+            className="text-[11px] text-gray-500 hover:text-[#cbb37a] transition"
+          >
             Forgot password?
           </a>
         </div>
 
-        <Button size="lg" className="w-full font-bold tracking-widest uppercase">
+        <Button
+          size="lg"
+          className="w-full font-bold tracking-widest uppercase"
+        >
           Login
         </Button>
       </form>
@@ -117,7 +160,10 @@ function LoginForm() {
 
       <div className="text-center text-[12px] text-gray-500">
         Don&apos;t have an account?
-        <Link href="/page/register" className="text-[#cbb37a] hover:underline ml-1">
+        <Link
+          href="/page/register"
+          className="text-[#cbb37a] hover:underline ml-1"
+        >
           Register now
         </Link>
       </div>

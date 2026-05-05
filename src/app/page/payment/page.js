@@ -119,6 +119,11 @@ export default function PaymentPage() {
     async function expireOrder() {
       try {
         setIsCancelSyncing(true);
+        console.log("Expiring order:", paymentContext);
+        setIsCancelled(true);
+        setIsCancelSyncing(false);
+        
+        /* Backend code - uncomment when backend is available:
         const response = await fetch("/api/payment/expire", {
           method: "POST",
           headers: {
@@ -175,6 +180,11 @@ export default function PaymentPage() {
         setLoading(true);
         setError("");
 
+        console.log("Creating payment link:", paymentContext);
+        setError("Backend không được cấu hình. Vui lòng khôi phục backend service.");
+        setLoading(false);
+        
+        /* Backend code - uncomment when backend is available:
         const response = await fetch("/api/payment", {
           method: "POST",
           headers: {

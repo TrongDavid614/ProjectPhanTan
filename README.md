@@ -16,28 +16,7 @@ Users can browse events, book tickets, purchase related products, and complete p
 
 - Next.js (React)
 - TailwindCSS / CSS Modules
-- Axios / Fetch API
-
-### Backend
-
-- Next.js API Routes
-- Node.js
-
-### Database
-
-- MongoDB Atlas
-
-### Media Storage
-
-- Cloudinary
-
-### Authentication
-
-- JWT / NextAuth (optional)
-
-### Payment Integration
-
-- VNPay
+- Fetch API
 
 ---
 
@@ -73,10 +52,8 @@ Users can browse events, book tickets, purchase related products, and complete p
 
 ## System Architecture
 
-Client (Next.js)  
-→ API Routes (Next.js Backend)  
-→ MongoDB Atlas  
-→ Cloudinary
+Client (Next.js Frontend Only)  
+→ ⚠️ Backend APIs Disabled - No Server Configured
 
 ---
 

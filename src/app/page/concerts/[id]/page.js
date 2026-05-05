@@ -11,6 +11,11 @@ export default function ConcertDetailPage({ params }) {
   useEffect(() => {
     if (!id) return;
 
+    // Backend API disabled - no server configured
+    console.log("Fetching event details for id:", id);
+    setData(null);
+
+    /* Backend code - uncomment when backend is available:
     const fetchEvent = async () => {
       try {
         const res = await fetch(`/api/events/${id}`);
@@ -22,6 +27,7 @@ export default function ConcertDetailPage({ params }) {
     };
 
     fetchEvent();
+    */
   }, [id]);
 
   return (

@@ -1,159 +1,106 @@
 "use client";
-import { useRef, useState, useEffect } from "react";
-import GoldButton from "@/components/common/Button/GoldButton";
-import ErrorPopup from "@/components/common/ErrorPopup/ErrorPopup";
+
+import { useState, useEffect, useRef } from "react";
 import styles from "./ProfileInfomation.module.css";
-export default function ProfileInfomation() {
-    const fileInputRef = useRef(null);
+import ErrorPopup from "@/components/common/ErrorPopup/ErrorPopup";
+import GoldButton from "@/components/common/Button/GoldButton";
 
-    const [uploading, setUploading] = useState(false);
-    const [avatarSrc, setAvatarSrc] = useState("/image 22.svg");
+const ProfileInfomation = () => {
+  const [userLocal, setUserLocal] = useState(null);
+  const [defaultData, setDefaultData] = useState({});
+  const [formData, setFormData] = useState({});
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [avatarSrc, setAvatarSrc] = useState("");
+  const [errorPopup, setErrorPopup] = useState({
+    show: false,
+    message: "",
+    title: "",
+  });
+  const [uploading, setUploading] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const fileInputRef = useRef(null);
+  const firstNameRef = useRef(null);
+  const lastNameRef = useRef(null);
+  const phoneRef = useRef(null);
+  const emailRef = useRef(null);
 
-    const [errorPopup, setErrorPopup] = useState({
-        show: false,
-        title: "",
-        message: ""
-    });
+  useEffect(() => {
+    const userRaw = localStorage.getItem("user");
+    const user = userRaw ? JSON.parse(userRaw) : null;
+    setUserLocal(user);
+    setUserId(user?._id || null);
 
-    const [userLocal, setUserLocal] = useState(null);
-    const [userName, setUserName] = useState("...");
-    const [userId, setUserId] = useState(null);
+    if (user?.avatar) {
+      setAvatarSrc(user.avatar);
+    }
+  }, []);
 
-    const [formData, setFormData] = useState({
-        firstName: "",
-        lastName: "",
-        phone: "",
-        email: ""
-    });
+  // Fetch user detail khi có userLocal
+  useEffect(() => {
+    if (!userLocal?._id) return;
 
-    const [defaultData, setDefaultData] = useState({
-        firstName: "",
-        lastName: "",
-        phone: "",
-        email: ""
-    });
-
-    const [passwordData, setPasswordData] = useState({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: ""
-    });
-
-    const emailRef = useRef(null);
-    const phoneRef = useRef(null);
-    const firstNameRef = useRef(null);
-    const lastNameRef = useRef(null);
-
-    const [emailError, setEmailError] = useState({
-        email: true,
-        message: "",
-        styles: styles.input
-    });
-
-    const [phoneError, setPhoneError] = useState({
-        phone: true,
-        message: "",
-        styles: styles.input
-    });
-
-    const [firstNameError, setFirstNameError] = useState({
-        firstName: true,
-        message: "",
-        styles: styles.input
-    });
-
-    const [lastNameError, setLastNameError] = useState({
-        lastName: true,
-        message: "",
-        styles: styles.input
-    });
-
-    const showError = (message, title = "Đã xảy ra lỗi") => {
-        setErrorPopup({
-            show: true,
-            title,
-            message
-        });
+    // Backend API disabled - no server configured
+    console.log("Fetching user detail:", userLocal._id);
+    const userData = {
+      firstName: userLocal.firstName || "",
+      lastName: userLocal.lastName || "",
+      phone: userLocal.phone || "",
+      email: userLocal.email || "",
     };
+    setDefaultData(userData);
+    setFormData(userData);
+  }, [userLocal]);
 
-    const closeError = () => {
-        setErrorPopup({
-            show: false,
-            title: "",
-            message: ""
-        });
-    };
+  function checkEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
 
-    // Đọc localStorage 1 lần
-    useEffect(() => {
-        const raw = localStorage.getItem("user");
+  function checkPhone(phone) {
+    const phoneRegex = /^[0-9]{10}$/;
+    return phoneRegex.test(phone);
+  }
 
-        if (!raw) {
-            window.location.href = "/page/login";
-            return;
-        }
+  function checkFullName(fullName) {
+    const fullNameRegex = /^[A-Za-zÀ-ÖØ-ßğıĞñÑáéíóúÁÉÍÓÚüÜçÇĐđ ]{2,}$/;
+    return fullNameRegex.test(fullName);
+  }
 
-        const user = JSON.parse(raw);
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-        setUserLocal(user);
-        setUserName(user?.name || "Người dùng");
-        setUserId(user?._id || null);
+    setAvatarSrc(URL.createObjectURL(file));
 
-        if (user?.avatar) {
-            setAvatarSrc(user.avatar);
-        }
-    }, []);
+    try {
+      setUploading(true);
 
-    // Fetch user detail khi có userLocal
-    useEffect(() => {
-        if (!userLocal?._id) return;
+      // Backend API disabled - no server configured
+      console.log("Avatar upload attempted");
+      const data = {
+        url: URL.createObjectURL(file),
+      };
 
-        fetch("/api/users/" + userLocal._id)
-            .then((res) => res.json())
-            .then((data) => {
-                const userData = {
-                    firstName: data.firstName || "",
-                    lastName: data.lastName || "",
-                    phone: data.phone || "",
-                    email: data.email || ""
-                };
+      setAvatarSrc(data.url);
 
-                setDefaultData(userData);
-                setFormData(userData);
-            })
-            .catch(() => {
-                showError("Không thể tải thông tin người dùng");
-            });
-    }, [userLocal]);
+      const existingUser = JSON.parse(localStorage.getItem("user") || "{}");
 
-    function checkEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    }
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...existingUser,
+          avatar: data.url,
+        }),
+      );
+      window.location.reload();
 
-    function checkPhone(phone) {
-        const phoneRegex = /^[0-9]{10}$/;
-        return phoneRegex.test(phone);
-    }
-
-    function checkFullName(fullName) {
-        const fullNameRegex =
-            /^[A-Za-zÀ-ÖØ-ößığĞñÑáéíóúÁÉÍÓÚüÜçÇĐđ ]{2,}$/;
-        return fullNameRegex.test(fullName);
-    }
-
-    const handleAvatarChange = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        setAvatarSrc(URL.createObjectURL(file));
-
-        try {
-            setUploading(true);
-
+      /* Backend code - uncomment when backend is available:
             const form = new FormData();
             form.append("file", file);
-
             if (userId) {
                 form.append("userId", userId);
             }
@@ -168,7 +115,6 @@ export default function ProfileInfomation() {
             }
 
             const data = await res.json();
-
             setAvatarSrc(data.url);
 
             const existingUser = JSON.parse(
@@ -181,38 +127,74 @@ export default function ProfileInfomation() {
                     ...existingUser,
                     avatar: data.url
                 })
-            )
+            );
             window.location.reload();
-            ;
-        } catch (err) {
-            console.error("Upload avatar lỗi:", err);
-            showError("Không thể upload ảnh. Vui lòng thử lại.", "Upload thất bại");
-        } finally {
-            setUploading(false);
-        }
+            */
+    } catch (err) {
+      console.error("Upload avatar lỗi:", err);
+      showError("Không thể upload ảnh. Vui lòng thử lại.", "Upload thất bại");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  function showError(message, title = "Lỗi", success = false) {
+    setErrorPopup({
+      show: true,
+      message,
+      title,
+      success,
+    });
+  }
+
+  function closeError() {
+    setErrorPopup({ show: false, message: "", title: "" });
+  }
+
+  function handleUpdate() {
+    const finalData = {
+      firstName: formData.firstName || defaultData.firstName,
+      lastName: formData.lastName || defaultData.lastName,
+      phone: formData.phone || defaultData.phone,
+      email: formData.email || defaultData.email,
     };
 
-    function handleUpdate() {
-        const finalData = {
-            firstName: formData.firstName || defaultData.firstName,
-            lastName: formData.lastName || defaultData.lastName,
-            phone: formData.phone || defaultData.phone,
-            email: formData.email || defaultData.email
-        };
+    if (
+      !firstNameRef.current.value &&
+      !lastNameRef.current.value &&
+      !phoneRef.current.value &&
+      !emailRef.current.value
+    ) {
+      showError(
+        "Vui lòng nhập thông tin cần sửa đổi",
+        "Thông tin không hợp lệ",
+      );
+      return;
+    }
 
-        if (
-            !firstNameRef.current.value &&
-            !lastNameRef.current.value &&
-            !phoneRef.current.value &&
-            !emailRef.current.value
-        ) {
-            showError(
-                "Vui lòng nhập thông tin cần sửa đổi",
-                "Thông tin không hợp lệ"
-            );
-            return;
-        }
+    // Backend API disabled - no server configured
+    console.log("Update user profile:", finalData);
+    const raw = localStorage.getItem("user");
 
+    if (raw) {
+      const user = JSON.parse(raw);
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...user,
+          ...finalData,
+        }),
+      );
+    }
+
+    showError(
+      "Thông tin đã được cập nhật (mock - backend disabled)",
+      "Cập nhật thành công",
+      true,
+    );
+
+    /* Backend code - uncomment when backend is available:
         fetch("/api/users/" + userLocal?._id, {
             method: "PUT",
             headers: {
@@ -222,10 +204,8 @@ export default function ProfileInfomation() {
         }).then((res) => {
             if (res.ok) {
                 const raw = localStorage.getItem("user");
-
                 if (raw) {
                     const user = JSON.parse(raw);
-
                     localStorage.setItem(
                         "user",
                         JSON.stringify({
@@ -240,7 +220,6 @@ export default function ProfileInfomation() {
                         })
                     );
                 }
-
                 window.location.reload();
             } else {
                 showError(
@@ -249,40 +228,50 @@ export default function ProfileInfomation() {
                 );
             }
         });
+        */
+  }
+
+  async function handleChangePassword() {
+    if (
+      !passwordData.currentPassword ||
+      !passwordData.newPassword ||
+      !passwordData.confirmPassword
+    ) {
+      showError("Vui lòng nhập đầy đủ thông tin");
+      return;
     }
 
-    async function handleChangePassword() {
-        if (
-            !passwordData.currentPassword ||
-            !passwordData.newPassword ||
-            !passwordData.confirmPassword
-        ) {
-            showError("Vui lòng nhập đầy đủ thông tin");
-            return;
-        }
+    if (passwordData.currentPassword === passwordData.newPassword) {
+      showError("Mật khẩu mới phải khác mật khẩu cũ");
+      return;
+    }
 
-        if (
-            passwordData.currentPassword ===
-            passwordData.newPassword
-        ) {
-            showError("Mật khẩu mới phải khác mật khẩu cũ");
-            return;
-        }
+    if (passwordData.newPassword.length < 8) {
+      showError("Mật khẩu mới phải có ít nhất 8 ký tự");
+      return;
+    }
 
-        if (passwordData.newPassword.length < 8) {
-            showError("Mật khẩu mới phải có ít nhất 8 ký tự");
-            return;
-        }
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      showError("Xác nhận mật khẩu không khớp");
+      return;
+    }
 
-        if (
-            passwordData.newPassword !==
-            passwordData.confirmPassword
-        ) {
-            showError("Xác nhận mật khẩu không khớp");
-            return;
-        }
+    try {
+      // Backend API disabled - no server configured
+      console.log("Change password attempted");
+      showError(
+        "Mật khẩu đã được thay đổi (mock - backend disabled)",
+        "Thay đổi thành công",
+        true,
+      );
 
-        try {
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+
+      /* Backend code - uncomment when backend is available:
             const res = await fetch(
                 `/api/users/change-password/${userLocal?._id}`,
                 {
@@ -291,8 +280,7 @@ export default function ProfileInfomation() {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        currentPassword:
-                            passwordData.currentPassword,
+                        currentPassword: passwordData.currentPassword,
                         newPassword: passwordData.newPassword
                     })
                 }
@@ -316,167 +304,199 @@ export default function ProfileInfomation() {
                     data.message || "Đổi mật khẩu thất bại"
                 );
             }
-        } catch {
-            showError(
-                "Không thể đổi mật khẩu. Vui lòng thử lại."
-            );
-        }
+            */
+    } catch (error) {
+      showError("Không thể đổi mật khẩu. Vui lòng thử lại.");
     }
+  }
 
-    return (
-        <div>
-            <ErrorPopup
-                message={errorPopup.show ? errorPopup.message : null}
-                title={errorPopup.title}
-                onClose={closeError}
+  return (
+    <div>
+      <ErrorPopup
+        message={errorPopup.show ? errorPopup.message : null}
+        title={errorPopup.title}
+        onClose={closeError}
+      />
+      <span className={styles.title}>Thông tin tài khoản</span>
+      <div className={styles.profileContainer}>
+        <div className={styles.avatarContainer}>
+          <div className={styles.avatarWrapper}>
+            <img className={styles.avatar} src={avatarSrc} alt="avatar" />
+            <button
+              className={styles.editAvatarBtn}
+              onClick={() => fileInputRef.current.click()}
+              title="Thay đổi ảnh đại diện"
+              disabled={uploading}
+            >
+              {uploading ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ animation: "spin 1s linear infinite" }}
+                >
+                  <circle cx="12" cy="12" r="10" opacity="0.25" />
+                  <path d="M12 2a10 10 0 0 1 10 10" />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+              )}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleAvatarChange}
             />
-            <span className={styles.title}>Thông tin tài khoản</span>
-            <div className={styles.profileContainer}>
-                <div className={styles.avatarContainer}>
-                    <div className={styles.avatarWrapper}>
-                        <img className={styles.avatar} src={avatarSrc} alt="avatar" />
-                        <button
-                            className={styles.editAvatarBtn}
-                            onClick={() => fileInputRef.current.click()}
-                            title="Thay đổi ảnh đại diện"
-                            disabled={uploading}
-                        >
-                            {uploading ? (
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "spin 1s linear infinite" }}>
-                                    <circle cx="12" cy="12" r="10" opacity="0.25" />
-                                    <path d="M12 2a10 10 0 0 1 10 10" />
-                                </svg>
-                            ) : (
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                                    <circle cx="12" cy="13" r="4" />
-                                </svg>
-                            )}
-                        </button>
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*"
-                            style={{ display: "none" }}
-                            onChange={handleAvatarChange}
-                        />
-                    </div>
-                    <span className={styles.name}>{userName}</span>
-                </div>
-                <div className={styles.formContainer}>
-                    <div style={{ display: "flex", gap: "20px" }}>
-                        <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-                            <input ref={firstNameRef} className={firstNameError.styles} type="text" placeholder={defaultData.firstName || "Họ tên đệm"} onChange={(e) => {
-                                if (checkFullName(e.target.value) || e.target.value === "") {
-                                    setFirstNameError({ firstName: true, message: "", styles: styles.input });
-                                } else {
-                                    setFirstNameError({ firstName: false, message: "Họ tên không hợp lệ", styles: styles.inputError });
-                                }
-                                setFormData({ ...formData, firstName: e.target.value });
-                            }} />
-                            <span className={`${styles.errorText} ${!firstNameError.firstName ? styles.errorTextVisible : ""}`}>
-                                {firstNameError.message}
-                            </span>
-                        </div>
-                        <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-                            <input ref={lastNameRef} className={lastNameError.styles} type="text" placeholder={defaultData.lastName || "Tên"} onChange={(e) => {
-                                if (checkFullName(e.target.value) || e.target.value === "") {
-                                    setLastNameError({ lastName: true, message: "", styles: styles.input });
-                                } else {
-                                    setLastNameError({ lastName: false, message: "Họ tên không hợp lệ", styles: styles.inputError });
-                                }
-                                setFormData({ ...formData, lastName: e.target.value });
-                            }} />
-                            <span className={`${styles.errorText} ${!lastNameError.lastName ? styles.errorTextVisible : ""}`}>
-                                {lastNameError.message}
-                            </span>
-                        </div>
-                    </div>
-                    <div>
-                        <input ref={phoneRef} className={phoneError.styles} type="text" placeholder={defaultData.phone || "Số điện thoại"} onChange={(e) => {
-                            if (checkPhone(e.target.value) || e.target.value === "") {
-                                setPhoneError({ phone: true, message: "", styles: styles.input });
-                            } else {
-                                setPhoneError({ phone: false, message: "Số điện thoại không hợp lệ", styles: styles.inputError });
-                            }
-                            setFormData({ ...formData, phone: e.target.value });
-                        }} />
-                        <span className={`${styles.errorText} ${!phoneError.phone ? styles.errorTextVisible : ""}`}>
-                            {phoneError.message}
-                        </span>
-                    </div>
-                    <div>
-                        <input ref={emailRef} className={emailError.styles} type="text" placeholder={defaultData.email || "Email"} onChange={(e) => {
-
-                            if (checkEmail(e.target.value) || e.target.value === "") {
-                                setEmailError({ email: true, message: "", styles: styles.input });
-                            } else {
-                                setEmailError({ email: false, message: "Email không hợp lệ", styles: styles.inputError });
-                            }
-                            setFormData({ ...formData, email: e.target.value });
-                        }} />
-                        <span className={`${styles.errorText} ${!emailError.email ? styles.errorTextVisible : ""}`}>
-                            {emailError.message}
-                        </span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "center" }}>
-                        <GoldButton onClick={handleUpdate} >CẬP NHẬT</GoldButton>
-                    </div>
-                </div>
-
-            </div>
-            <span className={styles.title}>Đổi mật khẩu</span>
-            <div className={styles.profileContainer}>
-                <div className={styles.formContainer}>
-
-                    <div>
-                        <input
-                            className={styles.input}
-                            type="password"
-                            placeholder="Mật khẩu cũ"
-                            value={passwordData.currentPassword}
-                            onChange={(e) =>
-                                setPasswordData({
-                                    ...passwordData,
-                                    currentPassword: e.target.value
-                                })
-                            }
-                        />
-                    </div>
-                    <div style={{ display: "flex", gap: "20px" }}>
-                        <input
-                            className={styles.input}
-                            type="password"
-                            placeholder="Mật khẩu mới"
-                            value={passwordData.newPassword}
-                            onChange={(e) =>
-                                setPasswordData({
-                                    ...passwordData,
-                                    newPassword: e.target.value
-                                })
-                            }
-                        />
-                        <input
-                            className={styles.input}
-                            type="password"
-                            placeholder="Xác nhận mật khẩu mới"
-                            value={passwordData.confirmPassword}
-                            onChange={(e) =>
-                                setPasswordData({
-                                    ...passwordData,
-                                    confirmPassword: e.target.value
-                                })
-                            }
-                        />
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "center" }}>
-                        <GoldButton onClick={handleChangePassword}>
-                            ĐỔI MẬT KHẨU
-                        </GoldButton>
-                    </div>
-                </div>
-
-            </div>
+          </div>
         </div>
-    )
-}
+
+        <div className={styles.formSection}>
+          <div className={styles.formGroup}>
+            <label>Họ</label>
+            <input
+              ref={firstNameRef}
+              type="text"
+              placeholder="Nhập họ"
+              value={formData.firstName || ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  firstName: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>Tên</label>
+            <input
+              ref={lastNameRef}
+              type="text"
+              placeholder="Nhập tên"
+              value={formData.lastName || ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  lastName: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>Số điện thoại</label>
+            <input
+              ref={phoneRef}
+              type="tel"
+              placeholder="Nhập số điện thoại"
+              value={formData.phone || ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  phone: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>Email</label>
+            <input
+              ref={emailRef}
+              type="email"
+              placeholder="Nhập email"
+              value={formData.email || ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  email: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <GoldButton onClick={handleUpdate}>CẬP NHẬT THÔNG TIN</GoldButton>
+          </div>
+        </div>
+      </div>
+
+      <span className={styles.title}>Đổi mật khẩu</span>
+      <div className={styles.profileContainer}>
+        <div className={styles.formSection}>
+          <div className={styles.formGroup}>
+            <label>Mật khẩu hiện tại</label>
+            <input
+              type="password"
+              placeholder="Nhập mật khẩu hiện tại"
+              value={passwordData.currentPassword}
+              onChange={(e) =>
+                setPasswordData({
+                  ...passwordData,
+                  currentPassword: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>Mật khẩu mới</label>
+            <input
+              type="password"
+              placeholder="Nhập mật khẩu mới"
+              value={passwordData.newPassword}
+              onChange={(e) =>
+                setPasswordData({
+                  ...passwordData,
+                  newPassword: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>Xác nhận mật khẩu</label>
+            <input
+              type="password"
+              placeholder="Xác nhận mật khẩu mới"
+              value={passwordData.confirmPassword}
+              onChange={(e) =>
+                setPasswordData({
+                  ...passwordData,
+                  confirmPassword: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <GoldButton onClick={handleChangePassword}>ĐỔI MẬT KHẨU</GoldButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProfileInfomation;

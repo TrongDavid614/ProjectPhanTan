@@ -11,6 +11,13 @@ export default function ConcertsPage() {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
+    // Backend API disabled - no server configured
+    console.log(
+      "Events and ticket types requested but backend is not available",
+    );
+    setEvents([]);
+
+    /* Backend code - uncomment when backend is available:
     Promise.all([
       fetch("/api/events").then(res => res.json()),
       fetch("/api/ticketTypes").then(res => res.json())
@@ -33,6 +40,7 @@ export default function ConcertsPage() {
 
       setEvents(eventsWithPrice);
     });
+    */
   }, []);
 
   const [filters, setFilters] = useState({
@@ -59,10 +67,8 @@ export default function ConcertsPage() {
       style={{ backgroundImage: "var(--background-image)" }}
     >
       <div className="relative z-10">
-
         <div className="max-w-[2000px] mx-auto pt-[calc(var(--navbar-height)*1.5)]">
           <div className="w-full px-30">
-
             <div className="flex items-center gap-8">
               <div className="flex-1">
                 <SearchBar />
@@ -101,10 +107,11 @@ export default function ConcertsPage() {
                   <button
                     key={i}
                     onClick={() => setCurrentPage(i + 1)}
-                    className={`px-4 py-2 rounded transition ${currentPage === i + 1
-                      ? "bg-white text-black"
-                      : "bg-white/10 text-white hover:bg-white/20"
-                      }`}
+                    className={`px-4 py-2 rounded transition ${
+                      currentPage === i + 1
+                        ? "bg-white text-black"
+                        : "bg-white/10 text-white hover:bg-white/20"
+                    }`}
                   >
                     {i + 1}
                   </button>
@@ -112,9 +119,7 @@ export default function ConcertsPage() {
 
                 <button
                   onClick={() =>
-                    setCurrentPage((prev) =>
-                      Math.min(prev + 1, totalPages)
-                    )
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                   }
                   className="px-4 py-2 rounded bg-white/10 text-white hover:bg-white/20"
                 >
@@ -122,7 +127,6 @@ export default function ConcertsPage() {
                 </button>
               </div>
             )}
-
           </div>
         </div>
       </div>

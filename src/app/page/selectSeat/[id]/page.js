@@ -25,6 +25,11 @@ export default function SelectSeatSmartPage() {
       try {
         setLoading(true);
 
+        // Backend API disabled - no server configured
+        console.log("Fetching event and ticket data for id:", id);
+        setLoading(false);
+
+        /* Backend code - uncomment when backend is available:
         const eventRes = await fetch(`/api/events/${id}`);
         const eventData = await eventRes.json();
 
@@ -44,6 +49,7 @@ export default function SelectSeatSmartPage() {
         const ticketData = await ticketRes.json();
 
         setTicketTypes(ticketData);
+        */
       } catch (err) {
         console.error("Lỗi thông mạch dữ liệu:", err);
       } finally {
