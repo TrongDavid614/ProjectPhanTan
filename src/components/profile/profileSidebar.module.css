@@ -1,66 +1,94 @@
 @font-face {
-    font-family: "fogtwono5";
-    src: url("/assets/fonts/fogtwono5/FogtwoNo5.otf");
+  font-family: "fogtwono5";
+  src: url("/assets/fonts/fogtwono5/FogtwoNo5.otf");
 }
 
 @font-face {
-    font-family: "Kanit-Regular";
-    src: url("/assets/fonts/Kanit/Kanit-Regular.ttf");
+  font-family: "Kanit-Regular";
+  src: url("/assets/fonts/Kanit/Kanit-Regular.ttf");
 }
 
 @font-face {
-    font-family: "Kanit-Bold";
-    src: url("/assets/fonts/Kanit/Kanit-Bold.ttf");
+  font-family: "Kanit-Bold";
+  src: url("/assets/fonts/Kanit/Kanit-Bold.ttf");
 }
 
 .logo {
-    width: 100px;
-    height: 100px;
+  width: 100px;
+  height: 100px;
 }
 
 .image {
-    width: 100px;
-    height: 100px;
+  width: 100px;
+  height: 100px;
 }
 
 .userBox {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .userNameBox {
-    display: flex;
-    flex-direction: column;
-    margin-left: 16px;
+  display: flex;
+  flex-direction: column;
+  margin-left: 16px;
 }
 
 .title {
-    font-family: "Kanit-Regular";
-    font-size: 16px;
-    color: #fff;
+  font-family: "Kanit-Regular";
+  font-size: 16px;
+  color: #fff;
 }
 
 .name {
-    font-family: "Kanit-Bold";
-    font-size: 20px;
-    color: #fff;
+  font-family: "Kanit-Bold";
+  font-size: 20px;
+  color: #fff;
 }
 
 .menuBox {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .menuItem {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 8px 0;
+}
+
+.menuItem:hover {
+  color: #cbb37a;
+}
+
+.menuItem svg {
+  color: #fff;
+  stroke: #fff;
+  flex-shrink: 0;
+}
+
+.menuItem:hover svg {
+  color: #cbb37a;
+  stroke: #cbb37a;
+}
+
+.menuItem img {
+  filter: brightness(0) invert(1);
+  flex-shrink: 0;
+}
+
+.menuItem:hover img {
+  filter: brightness(0) invert(1) sepia(1) hue-rotate(45deg) saturate(2);
 }
 
 .profileSidebarContainer {
-    width: 250px;
-    height: 100vh;
+  width: 250px;
+  height: 100vh;
 }

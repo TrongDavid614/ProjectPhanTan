@@ -8,7 +8,7 @@ export default function FilterBar({ filters, setFilters }) {
   const [cityOpen, setCityOpen] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
-  const cities = ["TP HCM", "Hà Nội", "Đà Nẵng", "Nha Trang", "Cần Thơ"];
+  const cities = ["Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Nha Trang", "Cần Thơ"];
 
   const prices = ["0k - 500k", "500k - 1000k", "1000k - 2000k", "2000k+"];
 

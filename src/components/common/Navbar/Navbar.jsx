@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import styles from "./Navbar.module.css";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Home, Ticket } from "lucide-react";
 import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,10 +22,6 @@ const Navbar = () => {
       label: "Vé của tôi",
       icon: "/ticket.svg",
       path: "/my-ticket",
-    },
-    {
-      label: "Giỏ hàng",
-      icon: "/shopping-cart.svg",
     },
     {
       label: "Tài khoản",
@@ -61,19 +57,19 @@ const Navbar = () => {
           alt="8Threads Logo"
           width={120}
           height={40}
+          priority
         />
       </div>
 
       <div className={styles.rightSide}>
         <div className={styles.menu}>
           <Link href="/" className={styles.link}>
+            <Home size={20} />
             Trang chủ
           </Link>
           <Link href="/page/concerts" className={styles.link}>
+            <Ticket size={20} />
             Mua vé
-          </Link>
-          <Link href="/products" className={styles.link}>
-            Sản phẩm
           </Link>
         </div>
 

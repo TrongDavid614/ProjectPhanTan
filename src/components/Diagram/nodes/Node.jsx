@@ -74,23 +74,42 @@ export default function Node({
 
   const dbCode = ID_MAPPING[id] || id;
 
+  const seatAliases = [
+    fullName,
+    `${label || ""} ${value || ""}`.trim(),
+    `${label || ""}${value || ""}`.trim(),
+    label,
+    dbCode,
+    id,
+  ]
+    .map(normalizeSeatLabel)
+    .filter(Boolean);
+
   const zoneData = ticketTypes?.find((t) => {
-    const candidates = [t.ticketTypeId, t.name, t.type, t._id].map(
-      normalizeSeatLabel,
-    );
+    const candidates = [
+      t.ticketTypeId,
+      t.name,
+      t.type,
+      t._id,
+      t.ticketCode,
+      t.ticket_type_code,
+    ]
+      .map(normalizeSeatLabel)
+      .filter(Boolean);
 
-    const normalizedDbCode = normalizeSeatLabel(dbCode);
-    const normalizedLabel = normalizeSeatLabel(label);
-
-    return (
-      candidates.includes(normalizedDbCode) ||
-      candidates.includes(normalizedLabel)
+    return candidates.some((candidate) =>
+      seatAliases.some(
+        (alias) =>
+          candidate === alias ||
+          candidate.includes(alias) ||
+          alias.includes(candidate),
+      ),
     );
   });
 
   const stock = zoneData ? zoneData.totalQuantity - zoneData.soldQuantity : 0;
 
-  const isSoldOut = zoneData ? stock <= 0 : false;
+  const isUnavailable = !zoneData || stock <= 0;
 
   const realPrice = zoneData ? zoneData.price : price;
 
@@ -141,14 +160,14 @@ export default function Node({
   const centerY = bbox.height / 2;
 
   const handleClick = () => {
-    if (isDecorative || isSoldOut) return;
+    if (isDecorative || isUnavailable || !zoneData) return;
 
     if (setActive) setActive(id);
 
     if (onZoneClick) {
       onZoneClick({
         id: id,
-        ticketTypeId: zoneData?.ticketTypeId || dbCode || id,
+        ticketTypeId: zoneData.ticketTypeId,
         name: fullName || `${label} ${value || ""}`.trim(),
         price: realPrice || 1200000,
         color: fill,
@@ -159,21 +178,23 @@ export default function Node({
 
   return (
     <g
-      className={`node ${isActive && !isDecorative && !isSoldOut ? "active" : ""} ${isSoldOut ? "sold-out" : ""}`}
+      className={`node ${isActive && !isDecorative && !isUnavailable ? "active" : ""} ${isUnavailable ? "sold-out" : ""}`}
       transform={transform}
-      onClick={isDecorative || isSoldOut ? undefined : handleClick}
+      onClick={isDecorative || isUnavailable ? undefined : handleClick}
       onMouseEnter={
-        isDecorative || isSoldOut ? undefined : () => setActive && setActive(id)
+        isDecorative || isUnavailable
+          ? undefined
+          : () => setActive && setActive(id)
       }
       onMouseLeave={
-        isDecorative || isSoldOut
+        isDecorative || isUnavailable
           ? undefined
           : () => setActive && setActive(null)
       }
       style={{
         cursor: isDecorative
           ? "default"
-          : isSoldOut
+          : isUnavailable
             ? "not-allowed"
             : "pointer",
         pointerEvents: isDecorative ? "none" : "auto",

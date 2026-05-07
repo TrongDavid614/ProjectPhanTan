@@ -49,6 +49,7 @@ function formatCountdown(ms) {
   const seconds = String(totalSeconds % 60).padStart(2, "0");
   return `${minutes}:${seconds}`;
 }
+const PAYMENT_API_BASE = "/api/v1";
 
 export default function PaymentPage() {
   const router = useRouter();
@@ -114,50 +115,10 @@ export default function PaymentPage() {
       return;
     }
 
-    let isMounted = true;
-
-    async function expireOrder() {
-      try {
-        setIsCancelSyncing(true);
-        console.log("Expiring order:", paymentContext);
-        setIsCancelled(true);
-        setIsCancelSyncing(false);
-        
-        /* Backend code - uncomment when backend is available:
-        const response = await fetch("/api/payment/expire", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ paymentContext }),
-        });
-
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data?.error || "Không thể hủy đơn hết hạn");
-        }
-
-        if (!isMounted) return;
-        setIsCancelled(true);
-        setPaymentUrl("");
-        setQrContent("");
-        setError("Đơn hàng đã hết hạn thanh toán. Vui lòng đặt lại.");
-      } catch (err) {
-        if (!isMounted) return;
-        setError(err?.message || "Không thể hủy đơn hết hạn");
-      } finally {
-        if (isMounted) {
-          setIsCancelSyncing(false);
-          setLoading(false);
-        }
-      }
-    }
-
-    expireOrder();
-
-    return () => {
-      isMounted = false;
-    };
+    setIsCancelled(true);
+    setPaymentUrl("");
+    setQrContent("");
+    setError("Đơn hàng đã hết hạn thanh toán. Vui lòng đặt lại.");
   }, [paymentContext, isExpired, isCancelled, isCancelSyncing]);
 
   useEffect(() => {
@@ -180,35 +141,52 @@ export default function PaymentPage() {
         setLoading(true);
         setError("");
 
-        console.log("Creating payment link:", paymentContext);
-        setError("Backend không được cấu hình. Vui lòng khôi phục backend service.");
-        setLoading(false);
-        
-        /* Backend code - uncomment when backend is available:
-        const response = await fetch("/api/payment", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+        // Check if paymentUrl is already provided from backend
+        if (paymentContext?.paymentUrl) {
+          if (!isMounted) return;
+          setPaymentUrl(paymentContext.paymentUrl);
+          setQrContent(paymentContext.paymentUrl);
+          return;
+        }
+
+        const amount = Number(paymentContext.total || 0);
+        if (!Number.isFinite(amount) || amount <= 0) {
+          throw new Error("Số tiền thanh toán không hợp lệ");
+        }
+
+        const response = await fetch(
+          `${PAYMENT_API_BASE}/payment/create-url?amount=${encodeURIComponent(amount)}`,
+          {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+            },
           },
-          body: JSON.stringify({
-            amount: paymentContext.total,
-            orderId: paymentContext.orderId,
-            bankCode: "NCB",
-            paymentContext,
-          }),
-        });
+        );
 
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data?.error || "Không thể tạo đường dẫn thanh toán");
+          throw new Error(
+            data?.error ||
+              data?.message ||
+              "Không thể tạo đường dẫn thanh toán",
+          );
+        }
+
+        const url = data?.url || data?.data?.url || "";
+
+        if (!url) {
+          throw new Error("API thanh toán không trả về URL");
         }
 
         if (!isMounted) return;
-        setPaymentUrl(data.url || "");
-        setQrContent(data.qrContent || data.url || "");
+        setPaymentUrl(url);
+        setQrContent(url);
       } catch (err) {
         if (!isMounted) return;
+        setPaymentUrl("");
+        setQrContent("");
         setError(err?.message || "Không thể tạo đường dẫn thanh toán");
       } finally {
         if (isMounted) {

@@ -14,7 +14,7 @@ export default function ConcertCard({ event }) {
   const router = useRouter();
 
   return (
-    <Link href={`/page/viewticket/${event._id}`}>
+    <Link href={`/page/selectSeat/${event._id}`}>
       <div
         className={styles.card}
         onMouseEnter={() => setHover(true)}
@@ -40,10 +40,7 @@ export default function ConcertCard({ event }) {
           </p>
 
           <div className={styles.meta}>
-            <EventDate
-              date={event.time?.event?.start}
-              isHover={hover}
-            />
+            <EventDate date={event.start_time} isHover={hover} />
 
             <EventLocation
               location={event.venue?.name + ", " + event.venue?.city || "Địa điểm chưa cập nhật"}

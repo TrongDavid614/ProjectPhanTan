@@ -375,6 +375,7 @@ const ProfileInfomation = () => {
           <div className={styles.formGroup}>
             <label>Họ</label>
             <input
+              className={styles.input}
               ref={firstNameRef}
               type="text"
               placeholder="Nhập họ"
@@ -391,6 +392,7 @@ const ProfileInfomation = () => {
           <div className={styles.formGroup}>
             <label>Tên</label>
             <input
+              className={styles.input}
               ref={lastNameRef}
               type="text"
               placeholder="Nhập tên"
@@ -407,6 +409,7 @@ const ProfileInfomation = () => {
           <div className={styles.formGroup}>
             <label>Số điện thoại</label>
             <input
+              className={styles.input}
               ref={phoneRef}
               type="tel"
               placeholder="Nhập số điện thoại"
@@ -423,6 +426,7 @@ const ProfileInfomation = () => {
           <div className={styles.formGroup}>
             <label>Email</label>
             <input
+              className={styles.input}
               ref={emailRef}
               type="email"
               placeholder="Nhập email"
@@ -448,6 +452,7 @@ const ProfileInfomation = () => {
           <div className={styles.formGroup}>
             <label>Mật khẩu hiện tại</label>
             <input
+              className={styles.input}
               type="password"
               placeholder="Nhập mật khẩu hiện tại"
               value={passwordData.currentPassword}
@@ -463,6 +468,7 @@ const ProfileInfomation = () => {
           <div className={styles.formGroup}>
             <label>Mật khẩu mới</label>
             <input
+              className={styles.input}
               type="password"
               placeholder="Nhập mật khẩu mới"
               value={passwordData.newPassword}
@@ -478,6 +484,7 @@ const ProfileInfomation = () => {
           <div className={styles.formGroup}>
             <label>Xác nhận mật khẩu</label>
             <input
+              className={styles.input}
               type="password"
               placeholder="Xác nhận mật khẩu mới"
               value={passwordData.confirmPassword}

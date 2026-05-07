@@ -9,57 +9,117 @@ import FilterTags from "@/components/FilterTags/FilterTags";
 
 export default function ConcertsPage() {
   const [events, setEvents] = useState([]);
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
-    // Backend API disabled - no server configured
-    console.log(
-      "Events and ticket types requested but backend is not available",
-    );
-    setEvents([]);
+    setHasMounted(true);
+    fetch("http://localhost:8080/api/v1/events")
+      .then((res) => res.json())
+      .then((response) => {
+        if (response.status === 200 && Array.isArray(response.data)) {
+          const formattedEvents = response.data.map((event) => ({
+            ...event,
+            _id: event.eventId || event.event_id || event.id,
+            name: event.name || event.title || event.event_name,
+            description: event.description || event.summary || "",
+            img: event.img || event.image || event.poster || "/poster.jpg",
+            minPrice: event.min_price || event.minPrice || 500000,
+            venue: {
+              name: event.venueName || event.venue_name || event.venue?.name || "",
+              city: event.city || event.venue?.city || "",
+            },
+            start_time: event.startTime || event.start_time || event.time || event.start || null,
+          }));
 
-    /* Backend code - uncomment when backend is available:
-    Promise.all([
-      fetch("/api/events").then(res => res.json()),
-      fetch("/api/ticketTypes").then(res => res.json())
-    ]).then(([eventsData, ticketsData]) => {
-
-      const ticketMap = {};
-
-      ticketsData.forEach(t => {
-        if (!t.isActive) return;
-        if (!ticketMap[t.eventId]) ticketMap[t.eventId] = [];
-        ticketMap[t.eventId].push(Number(t.price));
+          setEvents(formattedEvents);
+        }
+      })
+      .catch((err) => {
+        console.error("Lỗi kết nối Backend:", err);
+        setEvents([]);
       });
-
-      const eventsWithPrice = eventsData.map(event => ({
-        ...event,
-        minPrice: ticketMap[event.eventId]
-          ? Math.min(...ticketMap[event.eventId])
-          : 0
-      }));
-
-      setEvents(eventsWithPrice);
-    });
-    */
   }, []);
-
   const [filters, setFilters] = useState({
-    city: "Thành phố Hồ Chí Minh",
-    price: "0k - 500k",
-    genre: "Rap",
+    city: "",
+    price: "",
+    genre: "",
   });
+  const [searchText, setSearchText] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentEvents = events.slice(startIndex, startIndex + itemsPerPage);
+  const parsePriceRange = (priceStr) => {
+    if (!priceStr) return [0, Infinity];
+    try {
+      const parts = priceStr.split("-").map((p) => p.trim());
+      if (parts.length === 1) {
+        const n = Number(parts[0].replace(/[^0-9]/g, "")) || 0;
+        return [n, n];
+      }
+      const a = Number(parts[0].replace(/[^0-9]/g, "")) || 0;
+      const b = Number(parts[1].replace(/[^0-9]/g, "")) || Infinity;
+      const multA = /k/i.test(parts[0]) ? 1000 : 1;
+      const multB = /k/i.test(parts[1]) ? 1000 : 1;
+      return [a * multA, b * multB];
+    } catch (err) {
+      return [0, Infinity];
+    }
+  };
 
-  const totalPages = Math.ceil(events.length / itemsPerPage);
+  const [minPriceFilter, maxPriceFilter] = parsePriceRange(filters.price);
+
+  const filteredEvents = events.filter((ev) => {
+    if (searchText) {
+      const hay = (searchText || "").toLowerCase();
+      const title = (ev.name || ev.title || "").toString().toLowerCase();
+      const desc = (ev.description || ev.summary || "")
+        .toString()
+        .toLowerCase();
+      if (!title.includes(hay) && !desc.includes(hay)) return false;
+    }
+    if (filters.city) {
+      const city = ev?.venue?.city || ev?.city || "";
+      if (!city || !city.toLowerCase().includes(filters.city.toLowerCase())) {
+        return false;
+      }
+    }
+
+    if (filters.genre) {
+      const genreVal = (ev.genre || ev.type || ev.categories || "").toString();
+      if (
+        genreVal &&
+        !genreVal.toLowerCase().includes(filters.genre.toLowerCase())
+      ) {
+        return false;
+      }
+    }
+
+    const price = Number(ev.minPrice) || 0;
+    if (price < minPriceFilter || price > maxPriceFilter) return false;
+
+    return true;
+  });
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentEvents = filteredEvents.slice(
+    startIndex,
+    startIndex + itemsPerPage,
+  );
+
+  const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters.city, filters.price, filters.genre, searchText]);
+
+  if (!hasMounted) {
+    return null;
+  }
 
   return (
     <div
@@ -71,7 +131,11 @@ export default function ConcertsPage() {
           <div className="w-full px-30">
             <div className="flex items-center gap-8">
               <div className="flex-1">
-                <SearchBar />
+                <SearchBar
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  onSearch={() => {}}
+                />
               </div>
               <FilterBar filters={filters} setFilters={setFilters} />
             </div>

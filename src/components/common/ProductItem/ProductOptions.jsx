@@ -2,26 +2,26 @@
 
 import { useState } from "react";
 import styles from "./ProductOptions.module.css";
-import SuccessModel from "../Notification/SuccessModel"; 
+import SuccessModel from "../Notification/SuccessModel";
 
-export default function ProductOptions({ 
-  productName = "ATVNCG – Gathering Tee", 
-  price = "500.000đ" 
+export default function ProductOptions({
+  productName = "ATVNCG – Gathering Tee",
+  price = "500.000đ",
 }) {
   const [selectedSize, setSelectedSize] = useState("M");
   const [quantity, setQuantity] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleAddToCart = () => {
-
     setShowSuccess(true);
-
   };
 
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>{productName}</h2>
-      <p style={{ color: "#cbb37a", marginBottom: "15px", fontWeight: "bold" }}>{price}</p>
+      <p style={{ color: "#cbb37a", marginBottom: "15px", fontWeight: "bold" }}>
+        {price}
+      </p>
 
       <div className={styles.selectionArea}>
         {/* Chọn màu */}
@@ -50,19 +50,29 @@ export default function ProductOptions({
       </div>
 
       <div className={styles.quantityRow}>
-        <button className={styles.qtyBtn} onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
+        <button
+          className={styles.qtyBtn}
+          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+        >
+          -
+        </button>
         <span className={styles.qtyValue}>{quantity}</span>
-        <button className={styles.qtyBtn} onClick={() => setQuantity(quantity + 1)}>+</button>
+        <button
+          className={styles.qtyBtn}
+          onClick={() => setQuantity(quantity + 1)}
+        >
+          +
+        </button>
       </div>
 
       <span className={styles.guideText}>Hướng dẫn chọn size</span>
 
       <button className={styles.addToCartBtn} onClick={handleAddToCart}>
-        Thêm vào giỏ hàng
+        Chọn vé
       </button>
 
       {/* Hiển thị thông báo khi thành công */}
-      {showSuccess && <SuccessModel />} 
+      {showSuccess && <SuccessModel />}
     </div>
   );
 }

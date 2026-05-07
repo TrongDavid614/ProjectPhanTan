@@ -5,6 +5,7 @@ import styles from "../login/login.module.css";
 import Button from "@/components/common/Button/GoldButton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 const EyeIcon = () => (
   <svg
@@ -43,7 +44,10 @@ const EyeOffIcon = () => (
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [showPass, setShowPass] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -54,38 +58,77 @@ export default function RegisterPage() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setError("");
 
+    // Client-side validation
+    if (!formData.firstName.trim()) {
+      setError("Vui lòng nhập tên.");
+      return;
+    }
+    if (!formData.lastName.trim()) {
+      setError("Vui lòng nhập họ.");
+      return;
+    }
+    if (!formData.email.trim()) {
+      setError("Vui lòng nhập email.");
+      return;
+    }
+    if (!formData.password.trim()) {
+      setError("Vui lòng nhập mật khẩu.");
+      return;
+    }
+    if (formData.password.length < 6) {
+      setError("Mật khẩu phải ít nhất 6 ký tự.");
+      return;
+    }
     if (formData.password !== formData.confirmPassword) {
-      alert("Mật khẩu xác nhận không khớp!");
+      setError("Mật khẩu xác nhận không khớp!");
       return;
     }
 
-    // Backend API disabled - no server configured
-    console.log("Register attempted:", formData);
-    alert("Backend không được cấu hình. Vui lòng khôi phục backend service.");
+    setLoading(true);
 
-    /* Backend code - uncomment when backend is available:
-    const res = await fetch("/api/users/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password
-      })
-    });
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
-    const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        data = { error: "Invalid response format" };
+      }
 
-    if (res.ok) {
-      router.push("/page/login");
-    } else {
-      alert(data.error);
+      if (res.ok) {
+        // Auto-login after registration
+        const mockToken = "token_" + Date.now();
+        login(mockToken, {
+          id: formData.email,
+          userId: formData.email,
+          user_id: formData.email,
+          email: formData.email,
+          name: formData.firstName + " " + formData.lastName,
+        });
+
+        // Redirect to home
+        router.replace("/");
+      } else {
+        setError(data?.error || "Đăng ký thất bại. Vui lòng thử lại.");
+      }
+    } catch (err) {
+      setError("Lỗi kết nối. Vui lòng kiểm tra backend.");
+      console.error("Register error:", err);
+    } finally {
+      setLoading(false);
     }
-    */
   };
 
   return (
@@ -124,10 +167,12 @@ export default function RegisterPage() {
               <input
                 type="text"
                 placeholder="First Name"
-                required
+                value={formData.firstName}
                 onChange={(e) =>
                   setFormData({ ...formData, firstName: e.target.value })
                 }
+                required
+                disabled={loading}
               />
             </div>
 
@@ -135,10 +180,12 @@ export default function RegisterPage() {
               <input
                 type="text"
                 placeholder="Last Name"
-                required
+                value={formData.lastName}
                 onChange={(e) =>
                   setFormData({ ...formData, lastName: e.target.value })
                 }
+                required
+                disabled={loading}
               />
             </div>
 
@@ -146,10 +193,12 @@ export default function RegisterPage() {
               <input
                 type="email"
                 placeholder="Email Address"
-                required
+                value={formData.email}
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
+                required
+                disabled={loading}
               />
             </div>
 
@@ -157,15 +206,18 @@ export default function RegisterPage() {
               <input
                 type={showPass ? "text" : "password"}
                 placeholder="Password"
-                required
+                value={formData.password}
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
+                required
+                disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowPass(!showPass)}
                 className={styles.eyeButton}
+                disabled={loading}
               >
                 {showPass ? <EyeOffIcon /> : <EyeIcon />}
               </button>
@@ -175,25 +227,42 @@ export default function RegisterPage() {
               <input
                 type={showPass ? "text" : "password"}
                 placeholder="Confirm Password"
-                required
+                value={formData.confirmPassword}
                 onChange={(e) =>
                   setFormData({ ...formData, confirmPassword: e.target.value })
                 }
+                required
+                disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowPass(!showPass)}
                 className={styles.eyeButton}
+                disabled={loading}
               >
                 {showPass ? <EyeOffIcon /> : <EyeIcon />}
               </button>
             </div>
 
+            {error && (
+              <p
+                style={{
+                  color: "#ff6b6b",
+                  fontSize: "12px",
+                  marginBottom: "12px",
+                }}
+              >
+                {error}
+              </p>
+            )}
+
             <Button
               size="lg"
               className="w-full font-bold tracking-widest uppercase mt-4"
+              disabled={loading}
+              style={{ opacity: loading ? 0.6 : 1 }}
             >
-              REGISTER
+              {loading ? "ĐANG ĐĂNG KÝ..." : "REGISTER"}
             </Button>
           </form>
 

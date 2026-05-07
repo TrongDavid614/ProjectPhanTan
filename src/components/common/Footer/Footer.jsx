@@ -75,8 +75,10 @@ const Footer = () => {
             <Image
                 src="/assets/images/logo.png"
                 alt="8Threads Logo"
-                fill
+                width={450}
+                height={250}
                 className={styles.logo}
+                sizes="450px"
             />
             </div>
         </div>

@@ -27,10 +27,24 @@
   text-decoration: none;
   transition: 0.3s;
   font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .link:hover {
-  color: #9ca3af;
+  color: #cbb37a;
+}
+
+.link svg {
+  color: white;
+  stroke: white;
+  transition: 0.3s;
+}
+
+.link:hover svg {
+  color: #cbb37a;
+  stroke: #cbb37a;
 }
 
 .userSection {

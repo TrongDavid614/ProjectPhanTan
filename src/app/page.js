@@ -24,7 +24,5 @@ import { redirect } from "next/navigation";
 import ProfilePage from "./page/infomation/page";
 
 export default function Home() {
-  return (
-    <StartingPage />
-  )
+  return <StartingPage />;
 }

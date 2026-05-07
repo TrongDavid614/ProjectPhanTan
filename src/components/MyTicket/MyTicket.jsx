@@ -55,11 +55,7 @@ export default function MyTickets() {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const STATUS_CLASS = {
-    success: styles.badgeSuccess,
-    pending: styles.badgePending,
-    cancelled: styles.badgeCancelled,
-  };
+
   useEffect(() => {
     async function fetchTickets() {
       try {
@@ -71,29 +67,41 @@ export default function MyTickets() {
           return;
         }
         const user = JSON.parse(userRaw);
-        const ownerId = user?.userId;
+        const ownerId = user?.userId || user?.user_id || user?.id;
         if (!ownerId) {
           setError("Không tìm thấy thông tin người dùng.");
           return;
         }
 
-        // Backend API disabled - no server configured
-        console.log("Searching tickets for user:", ownerId);
-        setError(
-          "Backend không được cấu hình. Vui lòng khôi phục backend service.",
+        const res = await fetch(
+          `/api/v1/tickets/user/${encodeURIComponent(ownerId)}`,
         );
+        const data = await res.json();
 
-        /* Backend code - uncomment when backend is available:
-                const res = await fetch("/api/tickets/search", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ ownerId }),
-                });
+        if (!res.ok) {
+          throw new Error(data?.error || "Không thể tải vé.");
+        }
 
-                if (!res.ok) throw new Error("Không thể tải vé.");
-                const data = await res.json();
-                setTickets(data);
-                */
+        const normalized = Array.isArray(data)
+          ? data.map((item) => ({
+              ticketId: item.ticketId || "?",
+              qrCode: item.qrCode || "",
+              status: (item.status || "pending").toLowerCase(),
+              eventName: item.eventName || "Sự kiện",
+              eventStartTime: item.eventStartTime,
+              eventEndTime: item.eventEndTime,
+              venueName: item.venueName || "Địa điểm",
+              eventImg: item.eventImg || "/doraemon.png",
+              ticketTypeName: item.ticketTypeName || "Loại vé",
+              price: item.price != null ? Number(item.price) : 0,
+            }))
+          : [];
+
+        if (normalized.length === 0) {
+          console.warn("No tickets returned or empty array");
+        }
+
+        setTickets(normalized);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -108,9 +116,7 @@ export default function MyTickets() {
 
   const filteredTickets = tickets.filter((t) => {
     const statusMatch = activeTab === "all" || t.status === activeTab;
-    const eventEnd = t.event?.time?.event?.end
-      ? new Date(t.event.time.event.end)
-      : null;
+    const eventEnd = t.eventEndTime ? new Date(t.eventEndTime) : null;
     const isUpcoming = eventEnd ? eventEnd > now : true;
     const timeMatch = activeSubTab === "upcoming" ? isUpcoming : !isUpcoming;
     return statusMatch && timeMatch;
@@ -178,9 +184,12 @@ export default function MyTickets() {
               {filteredTickets.map((ticket) => (
                 <div key={ticket.ticketId} className={styles.ticketCard}>
                   {/* Left: Event image */}
-                  {ticket.event?.img && (
+                  {ticket.eventImg && (
                     <div className={styles.cardImg}>
-                      <img src={ticket.event.img} alt={ticket.event.name} />
+                      <img
+                        src={ticket.eventImg}
+                        alt={ticket.eventName || "Event"}
+                      />
                     </div>
                   )}
 
@@ -193,15 +202,15 @@ export default function MyTickets() {
                     </span>
 
                     <h3 className={styles.cardTitle}>
-                      {ticket.event?.name || "Sự kiện không xác định"}
+                      {ticket.eventName || "Sự kiện không xác định"}
                     </h3>
 
                     <p className={styles.cardType}>
                       <TicketIcon size={14} />{" "}
-                      {ticket.ticketType?.name || ticket.ticketTypeId}
-                      {ticket.ticketType?.price != null && (
+                      {ticket.ticketTypeName || "Loại vé"}
+                      {ticket.price != null && (
                         <span className={styles.cardPrice}>
-                          · {formatPrice(ticket.ticketType.price)}
+                          · {formatPrice(Number(ticket.price))}
                         </span>
                       )}
                     </p>
@@ -209,14 +218,11 @@ export default function MyTickets() {
                     <div className={styles.cardMeta}>
                       <span>
                         <CalendarIcon size={14} />{" "}
-                        {formatDate(ticket.event?.time?.event?.start)}
+                        {formatDate(ticket.eventStartTime)}
                       </span>
-                      {ticket.event?.venue?.name && (
+                      {ticket.venueName && (
                         <span>
-                          <PinIcon size={14} /> {ticket.event.venue.name}
-                          {ticket.event.venue.city
-                            ? `, ${ticket.event.venue.city}`
-                            : ""}
+                          <PinIcon size={14} /> {ticket.venueName}
                         </span>
                       )}
                     </div>

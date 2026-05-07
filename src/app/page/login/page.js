@@ -57,11 +57,35 @@ function LoginForm() {
     e.preventDefault();
     setError(""); // reset lỗi cũ
 
-    // Backend API disabled - no server configured
-    console.log("Login attempted:", { account, password });
-    setError(
-      "Backend không được cấu hình. Vui lòng khôi phục backend service.",
-    );
+    // Mock user data
+    const mockUser = {
+      email: "trongtan123tan@gmail.com",
+      password: "trong",
+      id: "admin_test",
+      name: "Nguyen Trong",
+      avatar: "/user.svg",
+    };
+
+    // Check mock user
+    if (
+      (account === mockUser.email || account === "trongtan123tan") &&
+      password === mockUser.password
+    ) {
+      const mockToken = "mock_token_" + Date.now();
+      login(mockToken, {
+        id: mockUser.id,
+        userId: mockUser.id,
+        user_id: mockUser.id,
+        email: mockUser.email,
+        name: mockUser.name,
+        avatar: mockUser.avatar,
+      });
+
+      const redirect = searchParams.get("redirect") || "/";
+      router.replace(redirect);
+    } else {
+      setError("Sai tài khoản hoặc mật khẩu");
+    }
 
     /* Backend code - uncomment when backend is available:
     const res = await fetch("/api/users/login", {

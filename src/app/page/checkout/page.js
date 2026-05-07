@@ -13,6 +13,7 @@ import styles from "./checkout.module.css";
 
 const HOLD_SECONDS = 10 * 60;
 const VOUCHER_MODAL_EXIT_MS = 280;
+const API_BASE = "/api/v1";
 
 function formatDateRange(isoStart) {
   if (!isoStart) return "Đang cập nhật";
@@ -46,6 +47,84 @@ function extractMinOrder(condition) {
   return matched ? Number(matched[1]) * 1000 : null;
 }
 
+function normalizeVoucher(voucher) {
+  if (!voucher) return null;
+
+  const conditionValue =
+    typeof voucher.condition === "string"
+      ? voucher.condition
+      : voucher.minOrder != null
+        ? `minOrder>=${voucher.minOrder}`
+        : voucher.requirement != null
+          ? String(voucher.requirement)
+          : "";
+
+  return {
+    ...voucher,
+    voucherId:
+      voucher.voucherId || voucher.voucher_id || voucher.id || voucher._id,
+    voucherName:
+      voucher.voucherName ||
+      voucher.name ||
+      voucher.title ||
+      voucher.code ||
+      "",
+    // Normalize voucher type to values the frontend expects:
+    // - percent: percentage-based discount (e.g., 15 => 15%)
+    // - amount: fixed amount in thousands (e.g., 50 => 50.000đ)
+    voucherType: (() => {
+      const raw = String(
+        voucher.voucherType || voucher.type || "",
+      ).toLowerCase();
+      if (
+        raw.includes("percent") ||
+        raw.includes("percentage") ||
+        raw === "pct"
+      )
+        return "percent";
+      if (
+        raw.includes("fix") ||
+        raw.includes("amount") ||
+        raw.includes("fixed")
+      )
+        return "amount";
+      // fallback heuristics: if there's a percent sign in other fields
+      if (String(voucher.promotion || "").includes("%")) return "percent";
+      return "amount";
+    })(),
+    value: Number(
+      voucher.value ??
+        voucher.promotion ??
+        voucher.discountValue ??
+        voucher.discount ??
+        0,
+    ),
+    condition: conditionValue,
+    timeStart:
+      voucher.timeStart || voucher.startTime || voucher.start_date || "",
+    timeEnd: voucher.timeEnd || voucher.endTime || voucher.end_date || "",
+    appliedEvent: Array.isArray(voucher.appliedEvent)
+      ? voucher.appliedEvent
+      : Array.isArray(voucher.eventIds)
+        ? voucher.eventIds
+        : voucher.eventId
+          ? [voucher.eventId]
+          : ["all"],
+  };
+}
+
+async function fetchJson(url) {
+  const response = await fetch(url, {
+    headers: { Accept: "application/json" },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  return response.json();
+}
+
 export default function CheckoutRoutePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -77,18 +156,30 @@ export default function CheckoutRoutePage() {
   useEffect(() => {
     let isMounted = true;
 
-    Promise.all([
-      fetch("/assets/data/events.json").then((res) => res.json()),
-      fetch("/assets/data/orders.json").then((res) => res.json()),
-      fetch("/assets/data/ticket_types.json").then((res) => res.json()),
-      fetch("/assets/data/vouchers.json").then((res) => res.json()),
+    Promise.allSettled([
+      fetchJson(`${API_BASE}/events`),
+      fetchJson(`${API_BASE}/vouchers`),
     ])
-      .then(([eventsData, ordersData, ticketTypesData, vouchersData]) => {
+      .then(async ([eventsResult, vouchersResult]) => {
         if (!isMounted) return;
-        setEvents(eventsData || []);
-        setOrders(ordersData || []);
-        setTicketTypes(ticketTypesData || []);
-        setVouchers(vouchersData || []);
+
+        const eventsData =
+          eventsResult.status === "fulfilled"
+            ? eventsResult.value?.data || eventsResult.value || []
+            : [];
+        const vouchersData =
+          vouchersResult.status === "fulfilled"
+            ? vouchersResult.value?.data || vouchersResult.value || []
+            : [];
+
+        setEvents(Array.isArray(eventsData) ? eventsData : []);
+        setOrders([]);
+        setTicketTypes([]);
+        setVouchers(
+          Array.isArray(vouchersData)
+            ? vouchersData.map(normalizeVoucher).filter(Boolean)
+            : [],
+        );
       })
       .catch(() => {
         if (!isMounted) return;
@@ -262,7 +353,7 @@ export default function CheckoutRoutePage() {
   const minuteText = String(Math.floor(timeLeft / 60)).padStart(2, "0");
   const secondText = String(timeLeft % 60).padStart(2, "0");
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     let hasError = false;
     const currentUserRaw = window.localStorage.getItem("user");
     let currentUser = null;
@@ -304,32 +395,116 @@ export default function CheckoutRoutePage() {
     }
 
     if (!hasError) {
-      const orderId = `VN${Date.now()}`;
-      const paymentContext = {
-        orderId,
-        userId: currentUser?.userId || currentUser?._id || "guest",
-        customer: {
-          fullName: fullName.trim(),
-          phone: phone.trim(),
-        },
-        eventId: checkoutData.eventId,
-        eventName: checkoutData.eventName,
-        eventTime: checkoutData.eventTime,
-        eventVenue: checkoutData.eventVenue,
-        items: checkoutData.items,
-        subtotal: checkoutData.subtotal,
-        discount: checkoutData.discount,
-        total: checkoutData.total,
-        selectedVoucher: checkoutData.selectedVoucher,
-        paymentMethod: "vnpay",
-        createdAt: new Date().toISOString(),
-      };
+      try {
+        setPaymentError("");
+        const userId =
+          currentUser?.userId ||
+          currentUser?.user_id ||
+          currentUser?._id ||
+          currentUser?.id ||
+          null;
 
-      window.localStorage.setItem(
-        "temp_payment_context",
-        JSON.stringify(paymentContext),
-      );
-      router.push(`/page/payment?orderId=${orderId}`);
+        if (!userId) {
+          throw new Error("Vui lòng đăng nhập trước khi thanh toán");
+        }
+
+        if (!checkoutData?.eventId) {
+          throw new Error("Không tìm thấy sự kiện để tạo đơn hàng");
+        }
+
+        const normalizedItems = (checkoutData.items || [])
+          .map((item) => ({
+            ticketTypeId: item?.ticketTypeId || item?.id || null,
+            quantity: Number(item?.quantity || 0),
+          }))
+          .filter(
+            (item) =>
+              Boolean(item.ticketTypeId) &&
+              Number.isFinite(item.quantity) &&
+              item.quantity > 0,
+          );
+
+        if (normalizedItems.length === 0) {
+          throw new Error("Giỏ vé trống hoặc dữ liệu vé không hợp lệ");
+        }
+
+        // Build OrderCreateRequest with eventId, userId, items, voucherId
+        const orderRequest = {
+          userId,
+          eventId: checkoutData.eventId,
+          items: normalizedItems,
+          voucherId: checkoutData.selectedVoucher?.voucherId || null,
+          paymentMethod: "vnpay",
+          totalAmount: Number(checkoutData.total || 0),
+        };
+
+        // POST to backend to create order
+        const response = await fetch(`${API_BASE}/orders`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(orderRequest),
+        });
+
+        const rawResponseText = await response.text();
+        let responseData = null;
+
+        try {
+          responseData = rawResponseText ? JSON.parse(rawResponseText) : null;
+        } catch {
+          responseData = { message: rawResponseText };
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            responseData?.message ||
+              responseData?.error ||
+              "Không thể tạo đơn hàng",
+          );
+        }
+
+        const orderId = responseData?.orderId || responseData?.data?.orderId;
+        const paymentUrl =
+          responseData?.paymentUrl || responseData?.data?.paymentUrl;
+
+        if (!orderId) {
+          throw new Error("API không trả về orderId");
+        }
+
+        // Store payment context with received orderId and customer info
+        const paymentContext = {
+          orderId,
+          userId,
+          customer: {
+            fullName: fullName.trim(),
+            phone: phone.trim(),
+          },
+          eventId: checkoutData.eventId,
+          eventName: checkoutData.eventName,
+          eventTime: checkoutData.eventTime,
+          eventVenue: checkoutData.eventVenue,
+          items: checkoutData.items,
+          subtotal: checkoutData.subtotal,
+          discount: checkoutData.discount,
+          total: checkoutData.total,
+          selectedVoucher: checkoutData.selectedVoucher,
+          paymentMethod: "vnpay",
+          paymentUrl, // Store payment URL if provided by backend
+          createdAt: new Date().toISOString(),
+        };
+
+        window.localStorage.setItem(
+          "temp_payment_context",
+          JSON.stringify(paymentContext),
+        );
+        router.push(`/page/payment?orderId=${orderId}`);
+      } catch (err) {
+        setPaymentError(
+          err.message || "Lỗi khi tạo đơn hàng. Vui lòng thử lại.",
+        );
+      }
     }
   };
 

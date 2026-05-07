@@ -28,22 +28,58 @@ export default function PaymentHistory() {
         }
 
         const user = JSON.parse(userRaw);
+        const ownerId = user?.userId || user?.user_id || user?.id;
+        if (!ownerId) {
+          setError("Không tìm thấy thông tin người dùng.");
+          setLoading(false);
+          return;
+        }
 
-        // Backend API disabled - no server configured
-        console.log("Fetching payment history for user:", user.userId);
-        setError(
-          "Backend không được cấu hình. Vui lòng khôi phục backend service.",
+        const res = await fetch(
+          `/api/v1/orders/history/${encodeURIComponent(ownerId)}`,
         );
+        let data = [];
+        try {
+          data = await res.json();
+        } catch (e) {
+          throw new Error("Không thể đọc dữ liệu từ server");
+        }
 
-        /* Backend code - uncomment when backend is available:
-                const res = await fetch(
-                `/api/orders/history/${user.userId}`
-                );
+        if (!res.ok) {
+          throw new Error(data?.error || "Không thể tải lịch sử mua vé");
+        }
 
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error);
-                setOrders(data);
-                */
+        // Normalize items structure if needed
+        const normalized = Array.isArray(data)
+          ? data.map((o) => ({
+              orderId: o.orderId,
+              status: (o.status || "pending").toLowerCase(),
+              createdAt: o.createdAt || o.created_at,
+              event: o.event || {
+                name: o.eventName || "Sự kiện",
+                img: o.eventImg || null,
+                venue: { name: o.venueName || "Địa điểm", city: "" },
+              },
+              items: Array.isArray(o.items)
+                ? o.items
+                : (o.orderItems || []).map((it) => ({
+                    name: it.name || it.ticketTypeName || it.ticketType?.name,
+                    quantity: it.quantity || it.qty || 1,
+                    unitPrice: it.unitPrice || it.price || it.unit_price || 0,
+                  })),
+              paymentMethod:
+                o.paymentMethod ||
+                o.payment?.method ||
+                o.paymentMethodName ||
+                "VNPAY",
+              originalTotal:
+                o.originalTotal || o.totalAmount || o.total_amount || 0,
+              discount: o.discount || 0,
+              subtotal: o.subtotal || o.totalAmount || o.total_amount || 0,
+            }))
+          : [];
+
+        setOrders(normalized);
       } catch (err) {
         setError(err.message);
       } finally {
