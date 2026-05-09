@@ -92,7 +92,7 @@ function LoginForm() {
     setError(""); // reset lỗi cũ
     // First try backend login endpoint
     try {
-      const url = `${API_BASE}/api/v1/auth/login`;
+      const url = `${API_BASE}/api/auth/login`;
       console.debug("Login request ->", { method: "POST", url, account });
       const res = await fetch(url, {
         method: "POST",

@@ -60,7 +60,7 @@ function ResetPasswordContent() {
 
     try {
       const response = await fetch(
-        `/api/v1/auth/reset-password?token=${encodeURIComponent(token)}&newPassword=${encodeURIComponent(password)}`,
+        `/api/auth/reset-password?token=${encodeURIComponent(token)}&newPassword=${encodeURIComponent(password)}`,
         {
           method: "POST",
           headers: {

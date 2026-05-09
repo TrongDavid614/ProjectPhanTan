@@ -16,7 +16,14 @@ const unwrapResponse = (response) => response?.data?.data ?? response?.data;
 
 export const getAdminDashboardStats = async () => {
   const response = await api.get("/stats");
-  return unwrapResponse(response);
+  const data = unwrapResponse(response) || {};
+
+  return {
+    events: data.events ?? data.totalEvents ?? 0,
+    ticketsSold: data.ticketsSold ?? data.totalTicketsSold ?? 0,
+    revenue: data.revenue ?? data.totalRevenue ?? 0,
+    orders: data.orders ?? data.totalOrders ?? 0,
+  };
 };
 
 export const getAdminEvents = async () => {

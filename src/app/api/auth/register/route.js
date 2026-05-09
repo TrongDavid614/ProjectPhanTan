@@ -3,7 +3,7 @@ export async function POST(request) {
     const body = await request.json();
     console.log("[API Register] Request body:", body);
 
-    const backendUrl = `http://localhost:8080/api/v1/auth/register`;
+    const backendUrl = `http://localhost:8080/api/auth/register`;
 
     const backendResponse = await fetch(backendUrl, {
       method: "POST",
