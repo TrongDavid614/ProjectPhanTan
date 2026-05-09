@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { CalendarDays, Circle, CircleCheck, MapPin } from "lucide-react";
@@ -125,7 +125,7 @@ async function fetchJson(url) {
   return response.json();
 }
 
-export default function CheckoutRoutePage() {
+function CheckoutRouteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedEventId = searchParams.get("eventId");
@@ -519,7 +519,7 @@ export default function CheckoutRoutePage() {
           "temp_payment_context",
           JSON.stringify(paymentContext),
         );
-        router.push(`/page/payment?orderId=${orderId}`);
+        router.push(`/user/payment?orderId=${orderId}`);
       } catch (err) {
         setPaymentError(
           err.message || "Lỗi khi tạo đơn hàng. Vui lòng thử lại.",
@@ -831,5 +831,13 @@ export default function CheckoutRoutePage() {
         />
       ) : null}
     </div>
+  );
+}
+
+export default function CheckoutRoutePage() {
+  return (
+    <Suspense fallback={<div className={styles.pageShell}>Đang tải...</div>}>
+      <CheckoutRouteContent />
+    </Suspense>
   );
 }

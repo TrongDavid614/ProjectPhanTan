@@ -97,7 +97,7 @@ export default function SelectSeatSmartPage() {
   useEffect(() => {
     const raw = localStorage.getItem("user");
     if (!raw) {
-      window.location.href = "/page/login";
+      window.location.href = "/user/login";
       return;
     }
 
@@ -106,7 +106,7 @@ export default function SelectSeatSmartPage() {
     } catch {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
-      window.location.href = "/page/login";
+      window.location.href = "/user/login";
     }
   }, []);
 

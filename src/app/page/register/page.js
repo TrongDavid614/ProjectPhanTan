@@ -89,7 +89,9 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/register", {
+      const API_URL =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -277,7 +279,7 @@ export default function RegisterPage() {
           <p className="text-center mt-6 text-gray-400 text-[14px]">
             Already have an account?{" "}
             <Link
-              href="/page/login"
+              href="/user/login"
               className="text-[#a0a0a0] hover:text-[#cbb37a] transition ml-1"
             >
               Login here

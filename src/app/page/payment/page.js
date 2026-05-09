@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   CalendarDays,
@@ -51,7 +51,7 @@ function formatCountdown(ms) {
 }
 const PAYMENT_API_BASE = "/api/v1";
 
-export default function PaymentPage() {
+function PaymentPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderIdFromUrl = searchParams.get("orderId");
@@ -226,7 +226,7 @@ export default function PaymentPage() {
           <div className={styles.emptyCard}>
             <h1>Không tìm thấy thông tin thanh toán</h1>
             <p>Vui lòng quay lại trang xác nhận để tạo lại đơn hàng.</p>
-            <GoldButton onClick={() => router.push("/page/checkout")}>
+            <GoldButton onClick={() => router.push("/user/checkout")}>
               Quay lại checkout
             </GoldButton>
           </div>
@@ -426,5 +426,13 @@ export default function PaymentPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function PaymentPage() {
+  return (
+    <Suspense fallback={<div className={styles.pageShell}>Đang tải...</div>}>
+      <PaymentPageContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import styles from "./reset-password.module.css";
@@ -8,7 +8,7 @@ import Navbar from "@/components/common/Navbar/Navbar";
 import GoldButton from "@/components/common/Button/GoldButton";
 import { Eye, EyeOff } from "lucide-react";
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
@@ -82,7 +82,7 @@ export default function ResetPasswordPage() {
 
       // Redirect to login after 2 seconds
       setTimeout(() => {
-        router.push("/page/login");
+        router.push("/user/login");
       }, 2000);
     } catch (err) {
       setError("Có lỗi xảy ra, vui lòng thử lại");
@@ -103,7 +103,7 @@ export default function ResetPasswordPage() {
               <div className={styles.errorMessage}>{error}</div>
               <div className={styles.footer}>
                 <p>
-                  Quay lại <Link href="/page/login">đăng nhập</Link>
+                  Quay lại <Link href="/user/login">đăng nhập</Link>
                 </p>
               </div>
             </div>
@@ -187,12 +187,20 @@ export default function ResetPasswordPage() {
 
             <div className={styles.footer}>
               <p>
-                Quay lại <Link href="/page/login">đăng nhập</Link>
+                Quay lại <Link href="/user/login">đăng nhập</Link>
               </p>
             </div>
           </div>
         </div>
       </main>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className={styles.pageShell}>Đang tải...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

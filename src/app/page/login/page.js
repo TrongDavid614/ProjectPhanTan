@@ -3,9 +3,33 @@
 import styles from "./login.module.css";
 import Button from "@/components/common/Button/GoldButton";
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { useAuth } from "@/context/AuthContext";
+
+const isAdminUser = (userData = {}, account = "") => {
+  const normalizedRole = String(
+    userData.role || userData.userRole || userData.type || "",
+  ).toUpperCase();
+  const normalizedRoles = Array.isArray(userData.roles)
+    ? userData.roles.map((role) => String(role).toUpperCase())
+    : [];
+  const normalizedAuthorities = Array.isArray(userData.authorities)
+    ? userData.authorities.map((authority) =>
+        String(authority?.authority || authority).toUpperCase(),
+      )
+    : [];
+
+  return (
+    normalizedRole === "ADMIN" ||
+    normalizedRoles.includes("ADMIN") ||
+    normalizedAuthorities.includes("ADMIN") ||
+    userData.isAdmin === true ||
+    String(userData.email || account)
+      .toLowerCase()
+      .includes("admin")
+  );
+};
 
 const EyeIcon = () => (
   <svg
@@ -45,14 +69,23 @@ const EyeOffIcon = () => (
 
 function LoginForm() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
+  const isAdminRoute = pathname?.startsWith("/admin");
+  const isUserRoute = pathname?.startsWith("/user");
+  const authBase = isUserRoute ? "/user" : "/page";
 
   const [account, setAccount] = useState(searchParams.get("account") || "");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const { login } = useAuth();
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8080";
+
+  const getRole = (userData = {}) =>
+    String(
+      userData.role || userData.userRole || userData.type || "",
+    ).toUpperCase();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -71,10 +104,22 @@ function LoginForm() {
         const data = await res.json();
         const token = data.token || data.accessToken || data.data?.token;
         const userData = data.user || data.data?.user || data;
+        const userRole = getRole(userData);
+
+        if (isAdminRoute && userRole !== "ADMIN") {
+          const message = "Tài khoản này không có quyền ADMIN.";
+          setError(message);
+          if (typeof window !== "undefined") window.alert(message);
+          return;
+        }
 
         // Save via AuthContext
         login(token || "", userData || {});
-        const redirect = searchParams.get("redirect") || "/";
+        const redirect = isAdminRoute
+          ? "/admin/dashboard"
+          : isAdminUser(userData, account)
+            ? "/admin/dashboard"
+            : searchParams.get("redirect") || "/";
         router.replace(redirect);
         return;
       }
@@ -100,6 +145,11 @@ function LoginForm() {
         (account === mockUser.email || account === "trongtan123tan") &&
         password === mockUser.password
       ) {
+        if (!isAdminRoute) {
+          setError("Tài khoản mock này chỉ dùng để thử admin login.");
+          return;
+        }
+
         const mockToken = "mock_token_" + Date.now();
         login(mockToken, {
           id: mockUser.id,
@@ -108,10 +158,11 @@ function LoginForm() {
           email: mockUser.email,
           name: mockUser.name,
           avatar: mockUser.avatar,
+          role: "ADMIN",
+          isAdmin: true,
         });
 
-        const redirect = searchParams.get("redirect") || "/";
-        router.replace(redirect);
+        router.replace("/admin/dashboard");
         return;
       }
 
@@ -170,7 +221,7 @@ function LoginForm() {
 
         <div className="text-right mb-6">
           <Link
-            href="/page/forgot-password"
+            href={`${authBase}/forgot-password`}
             className="text-[11px] text-gray-500 hover:text-[#cbb37a] transition"
           >
             Quên mật khẩu?
@@ -196,10 +247,20 @@ function LoginForm() {
       <div className="text-center text-[12px] text-gray-500">
         Don&apos;t have an account?
         <Link
-          href="/page/register"
+          href={`${authBase}/register`}
           className="text-[#cbb37a] hover:underline ml-1"
         >
           Register now
+        </Link>
+      </div>
+
+      <div className="text-center text-[12px] text-gray-500 mt-3">
+        Admin account?
+        <Link
+          href="/admin/register"
+          className="text-[#cbb37a] hover:underline ml-1"
+        >
+          Create admin account
         </Link>
       </div>
     </div>
@@ -208,17 +269,27 @@ function LoginForm() {
 
 export default function LoginPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const [checking, setChecking] = useState(true);
+  const isAdminRoute = pathname?.startsWith("/admin");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
 
     if (token) {
-      router.replace("/");
+      try {
+        const parsedUser = userData ? JSON.parse(userData) : {};
+        router.replace(
+          isAdminRoute || isAdminUser(parsedUser) ? "/admin" : "/",
+        );
+      } catch {
+        router.replace(isAdminRoute ? "/admin" : "/");
+      }
     } else {
       setChecking(false);
     }
-  }, []);
+  }, [router, isAdminRoute]);
 
   if (checking) return null;
 

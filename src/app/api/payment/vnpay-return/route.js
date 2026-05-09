@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(request) {
   const incomingUrl = new URL(request.url);
-  const returnUrl = new URL("/page/payment/return", incomingUrl.origin);
+  const returnUrl = new URL("/user/payment/return", incomingUrl.origin);
 
   // Forward all VNPAY query params to the frontend payment return page.
   incomingUrl.searchParams.forEach((value, key) => {

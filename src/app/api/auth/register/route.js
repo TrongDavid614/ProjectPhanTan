@@ -1,6 +1,7 @@
 export async function POST(request) {
   try {
     const body = await request.json();
+    console.log("[API Register] Request body:", body);
 
     const backendUrl = `http://localhost:8080/api/v1/auth/register`;
 
@@ -20,6 +21,11 @@ export async function POST(request) {
       responseData = { message: text || "Response from backend" };
     }
 
+    console.log("[API Register] Backend response:", {
+      status: backendResponse.status,
+      data: responseData,
+    });
+
     const statusCode = backendResponse.ok ? 200 : backendResponse.status;
 
     return new Response(JSON.stringify(responseData), {
@@ -27,7 +33,7 @@ export async function POST(request) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Register API error:", error.message);
+    console.error("[API Register] Error:", error.message);
     return new Response(
       JSON.stringify({ error: error.message || "Backend connection failed" }),
       { status: 500, headers: { "Content-Type": "application/json" } },

@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import Navbar from "@/components/common/Navbar/Navbar";
 import GoldButton from "@/components/common/Button/GoldButton";
 import styles from "./paymentReturn.module.css";
 
-export default function PaymentReturnPage() {
+function PaymentReturnContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState("loading");
@@ -89,7 +89,7 @@ export default function PaymentReturnPage() {
           <p>{message}</p>
 
           <div className={styles.actions}>
-            <GoldButton onClick={() => router.push("/payment-history")}>
+            <GoldButton onClick={() => router.push("/user/payment-history")}>
               Xem lịch sử thanh toán
             </GoldButton>
             <button
@@ -103,5 +103,13 @@ export default function PaymentReturnPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function PaymentReturnPage() {
+  return (
+    <Suspense fallback={<div className={styles.pageShell}>Đang tải...</div>}>
+      <PaymentReturnContent />
+    </Suspense>
   );
 }

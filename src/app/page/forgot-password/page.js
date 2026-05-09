@@ -92,7 +92,7 @@ export default function ForgotPasswordPage() {
 
             <div className={styles.footer}>
               <p>
-                Quay lại <Link href="/page/login">đăng nhập</Link>
+                Quay lại <Link href="/user/login">đăng nhập</Link>
               </p>
             </div>
           </div>

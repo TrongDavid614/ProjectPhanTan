@@ -1,0 +1,100 @@
+{
+  "anhTai": [
+    {
+      "name": "BB Trần",
+      "img": "/assets/images/artist/bbtran.jpg",
+      "description": "Diễn viên và nghệ sĩ giải trí với phong cách trình diễn nổi bật.",
+      "facebook": "",
+      "youtube": "",
+      "instagram": ""
+    },
+    {
+      "name": "Binz",
+      "img": "/assets/images/artist/binz.jpg",
+      "description": "Rap artist với màu sắc âm nhạc hiện đại và cá tính.",
+      "facebook": "",
+      "youtube": "",
+      "instagram": ""
+    },
+    {
+      "name": "Bằng Kiều",
+      "img": "/assets/images/artist/bangkieu.jpg",
+      "description": "Ca sĩ sở hữu giọng hát giàu cảm xúc và kinh nghiệm sân khấu.",
+      "facebook": "",
+      "youtube": "",
+      "instagram": ""
+    },
+    {
+      "name": "Bùi Công Nam",
+      "img": "/assets/images/artist/buicongnam.jpg",
+      "description": "Ca sĩ - nhạc sĩ trẻ trung, giàu năng lượng sáng tạo.",
+      "facebook": "",
+      "youtube": "",
+      "instagram": ""
+    },
+    {
+      "name": "Cường Seven",
+      "img": "/assets/images/artist/cuongseven.jpg",
+      "description": "Nghệ sĩ đa năng, nổi bật với phong cách trình diễn sôi động.",
+      "facebook": "",
+      "youtube": "",
+      "instagram": ""
+    },
+    {
+      "name": "Đăng Khôi",
+      "img": "/assets/images/artist/dangkhoi.jpg",
+      "description": "Ca sĩ quen thuộc với nhiều bản ballad và sân khấu live.",
+      "facebook": "",
+      "youtube": "",
+      "instagram": ""
+    },
+    {
+      "name": "Đinh Tiến Đạt",
+      "img": "/assets/images/artist/dinhtiendat.jpg",
+      "description": "Nghệ sĩ có dấu ấn riêng trong làng nhạc Việt.",
+      "facebook": "",
+      "youtube": "",
+      "instagram": ""
+    },
+    {
+      "name": "Duy Khánh",
+      "img": "/assets/images/artist/duykhanh.jpg",
+      "description": "Diễn viên kiêm nghệ sĩ sân khấu quen thuộc với khán giả trẻ.",
+      "facebook": "",
+      "youtube": "",
+      "instagram": ""
+    },
+    {
+      "name": "HuyR",
+      "img": "/assets/images/artist/huyr.jpg",
+      "description": "Ca sĩ trẻ với phong cách hiện đại và cá tính âm nhạc riêng.",
+      "facebook": "",
+      "youtube": "",
+      "instagram": ""
+    },
+    {
+      "name": "Jun Phạm",
+      "img": "/assets/images/artist/junpham.jpg",
+      "description": "Ca sĩ, diễn viên và tác giả đa năng trên sân khấu giải trí.",
+      "facebook": "",
+      "youtube": "",
+      "instagram": ""
+    },
+    {
+      "name": "Soobin",
+      "img": "/assets/images/artist/soobin.jpg",
+      "description": "Ca sĩ/rapper với phong cách biểu diễn hiện đại, giàu năng lượng.",
+      "facebook": "",
+      "youtube": "",
+      "instagram": ""
+    },
+    {
+      "name": "Tăng Phúc",
+      "img": "/assets/images/artist/tangphuc.jpg",
+      "description": "Ca sĩ ballad với màu sắc cảm xúc và giọng hát giàu nội lực.",
+      "facebook": "",
+      "youtube": "",
+      "instagram": ""
+    }
+  ]
+}
