@@ -52,60 +52,71 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const { login } = useAuth();
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8080";
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(""); // reset lỗi cũ
-
-    // Mock user data
-    const mockUser = {
-      email: "trongtan123tan@gmail.com",
-      password: "trong",
-      id: "admin_test",
-      name: "Nguyen Trong",
-      avatar: "/user.svg",
-    };
-
-    // Check mock user
-    if (
-      (account === mockUser.email || account === "trongtan123tan") &&
-      password === mockUser.password
-    ) {
-      const mockToken = "mock_token_" + Date.now();
-      login(mockToken, {
-        id: mockUser.id,
-        userId: mockUser.id,
-        user_id: mockUser.id,
-        email: mockUser.email,
-        name: mockUser.name,
-        avatar: mockUser.avatar,
+    // First try backend login endpoint
+    try {
+      const url = `${API_BASE}/api/v1/auth/login`;
+      console.debug("Login request ->", { method: "POST", url, account });
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ account, password }),
       });
 
-      const redirect = searchParams.get("redirect") || "/";
-      router.replace(redirect);
-    } else {
-      setError("Sai tài khoản hoặc mật khẩu");
+      if (res.ok) {
+        const data = await res.json();
+        const token = data.token || data.accessToken || data.data?.token;
+        const userData = data.user || data.data?.user || data;
+
+        // Save via AuthContext
+        login(token || "", userData || {});
+        const redirect = searchParams.get("redirect") || "/";
+        router.replace(redirect);
+        return;
+      }
+
+      const body = await res.json().catch(() => ({}));
+      setError(
+        (body.message || body.error || "Sai tài khoản hoặc mật khẩu") +
+          ` (status ${res.status})`,
+      );
+      return;
+    } catch (err) {
+      // Network/backend unavailable — fallback to existing mock (for local dev)
+      // Mock user data (kept as fallback during development)
+      const mockUser = {
+        email: "trongtan123tan@gmail.com",
+        password: "trong",
+        id: "admin_test",
+        name: "Nguyen Trong",
+        avatar: "/user.svg",
+      };
+
+      if (
+        (account === mockUser.email || account === "trongtan123tan") &&
+        password === mockUser.password
+      ) {
+        const mockToken = "mock_token_" + Date.now();
+        login(mockToken, {
+          id: mockUser.id,
+          userId: mockUser.id,
+          user_id: mockUser.id,
+          email: mockUser.email,
+          name: mockUser.name,
+          avatar: mockUser.avatar,
+        });
+
+        const redirect = searchParams.get("redirect") || "/";
+        router.replace(redirect);
+        return;
+      }
+
+      setError(err?.message || String(err));
     }
-
-    /* Backend code - uncomment when backend is available:
-    const res = await fetch("/api/users/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ account, password }),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-
-      login(data.token, data.user);
-
-      const redirect = searchParams.get("redirect") || "/";
-      router.replace(redirect);
-    } else {
-      const data = await res.json();
-      setError(data.message || "Sai tài khoản hoặc mật khẩu");
-    }
-    */
   };
 
   return (
@@ -158,12 +169,12 @@ function LoginForm() {
         <p className={styles.errorText}>{error || "\u00A0"}</p>
 
         <div className="text-right mb-6">
-          <a
-            href="#"
+          <Link
+            href="/page/forgot-password"
             className="text-[11px] text-gray-500 hover:text-[#cbb37a] transition"
           >
-            Forgot password?
-          </a>
+            Quên mật khẩu?
+          </Link>
         </div>
 
         <Button

@@ -35,7 +35,8 @@ export default function PaymentHistory() {
           return;
         }
 
-        const res = await fetch(
+        // Fetch by ownerId first
+        let res = await fetch(
           `/api/v1/orders/history/${encodeURIComponent(ownerId)}`,
         );
         let data = [];
@@ -47,6 +48,27 @@ export default function PaymentHistory() {
 
         if (!res.ok) {
           throw new Error(data?.error || "Không thể tải lịch sử mua vé");
+        }
+
+        // Fallback: if history is empty and user has an email different
+        // from ownerId, try by email (addresses dev/mock mismatch).
+        if (
+          Array.isArray(data) &&
+          data.length === 0 &&
+          user?.email &&
+          user.email !== ownerId
+        ) {
+          try {
+            const fbRes = await fetch(
+              `/api/v1/orders/history/${encodeURIComponent(user.email)}`,
+            );
+            const fbData = await fbRes.json();
+            if (fbRes.ok && Array.isArray(fbData) && fbData.length > 0) {
+              data = fbData;
+            }
+          } catch (e) {
+            // ignore fallback
+          }
         }
 
         // Normalize items structure if needed

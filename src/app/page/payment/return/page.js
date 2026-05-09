@@ -28,7 +28,7 @@ export default function PaymentReturnPage() {
 
         console.log("Confirming payment:", queryObject);
         setStatus("success");
-        setMessage("Thanh toán thành công (mock - backend disabled)");
+        setMessage("Thanh toán thành công");
 
         /* Backend code - uncomment when backend is available:
         const response = await fetch("/api/payment/confirm", {

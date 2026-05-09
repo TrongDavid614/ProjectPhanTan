@@ -398,10 +398,10 @@ export default function CheckoutRoutePage() {
       try {
         setPaymentError("");
         const userId =
+          currentUser?.id ||
           currentUser?.userId ||
           currentUser?.user_id ||
           currentUser?._id ||
-          currentUser?.id ||
           null;
 
         if (!userId) {
@@ -428,7 +428,6 @@ export default function CheckoutRoutePage() {
           throw new Error("Giỏ vé trống hoặc dữ liệu vé không hợp lệ");
         }
 
-        // Build OrderCreateRequest with eventId, userId, items, voucherId
         const orderRequest = {
           userId,
           eventId: checkoutData.eventId,
@@ -438,7 +437,12 @@ export default function CheckoutRoutePage() {
           totalAmount: Number(checkoutData.total || 0),
         };
 
-        // POST to backend to create order
+        console.log(
+          "📦 OrderRequest being sent:",
+          JSON.stringify(orderRequest, null, 2),
+        );
+        console.log("📤 POST target:", `${API_BASE}/orders`);
+
         const response = await fetch(`${API_BASE}/orders`, {
           method: "POST",
           headers: {
@@ -447,6 +451,12 @@ export default function CheckoutRoutePage() {
           },
           body: JSON.stringify(orderRequest),
         });
+
+        console.log(
+          "📩 Response status:",
+          response.status,
+          response.statusText,
+        );
 
         const rawResponseText = await response.text();
         let responseData = null;
@@ -457,7 +467,18 @@ export default function CheckoutRoutePage() {
           responseData = { message: rawResponseText };
         }
 
+        console.log(
+          "📦 Backend response data:",
+          JSON.stringify(responseData, null, 2),
+        );
+
         if (!response.ok) {
+          console.error(
+            "❌ Order creation failed with status",
+            response.status,
+            ":",
+            JSON.stringify(responseData, null, 2),
+          );
           throw new Error(
             responseData?.message ||
               responseData?.error ||
@@ -473,7 +494,6 @@ export default function CheckoutRoutePage() {
           throw new Error("API không trả về orderId");
         }
 
-        // Store payment context with received orderId and customer info
         const paymentContext = {
           orderId,
           userId,
@@ -491,7 +511,7 @@ export default function CheckoutRoutePage() {
           total: checkoutData.total,
           selectedVoucher: checkoutData.selectedVoucher,
           paymentMethod: "vnpay",
-          paymentUrl, // Store payment URL if provided by backend
+          paymentUrl,
           createdAt: new Date().toISOString(),
         };
 

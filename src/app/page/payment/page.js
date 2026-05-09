@@ -401,19 +401,6 @@ export default function PaymentPage() {
               </p>
             </div>
 
-            <div className={styles.testGuideCard}>
-              <h3>Flow test VNPAY sandbox</h3>
-              <p>
-                Bấm nút bên dưới để redirect sang cổng VNPAY sandbox, sau đó
-                chọn thanh toán bằng thẻ ATM nội địa / Internet Banking.
-              </p>
-              <p>Ngân hàng test khuyến nghị: NCB</p>
-              <p>
-                Bộ thẻ demo: 9704198526191432198 - NGUYEN VAN A - 07/15 - OTP:
-                123456
-              </p>
-            </div>
-
             <div className={styles.qrActions}>
               <button
                 type="button"

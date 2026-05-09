@@ -3,17 +3,19 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import styles from "./Navbar.module.css";
-import { ChevronDown, Home, Ticket } from "lucide-react";
+import { ChevronDown, Home, Sparkles, Ticket } from "lucide-react";
 import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import ConfirmDialog from "@/components/common/ConfirmDialog/ConfirmDialog";
 
 const Navbar = () => {
   const router = useRouter();
   const { user, isLoggedIn, logout, loading } = useAuth();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   if (loading) return null;
 
@@ -37,8 +39,7 @@ const Navbar = () => {
 
   const handleAction = (item) => {
     if (item.action === "logout") {
-      logout();
-      router.push("/page/login");
+      setShowLogoutConfirm(true);
       return;
     }
 
@@ -47,6 +48,16 @@ const Navbar = () => {
     }
 
     setIsOpen(false);
+  };
+
+  const handleConfirmLogout = () => {
+    setShowLogoutConfirm(false);
+    logout();
+    router.push("/page/login");
+  };
+
+  const handleCancelLogout = () => {
+    setShowLogoutConfirm(false);
   };
 
   return (
@@ -58,6 +69,7 @@ const Navbar = () => {
           width={120}
           height={40}
           priority
+          style={{ width: "auto", height: "40px" }}
         />
       </div>
 
@@ -70,6 +82,10 @@ const Navbar = () => {
           <Link href="/page/concerts" className={styles.link}>
             <Ticket size={20} />
             Mua vé
+          </Link>
+          <Link href="/page/ai" className={styles.link}>
+            <Sparkles size={20} />
+            AI tư vấn
           </Link>
         </div>
 
@@ -127,6 +143,16 @@ const Navbar = () => {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={showLogoutConfirm}
+        title="Đăng xuất"
+        message="Bạn có chắc chắn muốn đăng xuất không?"
+        onConfirm={handleConfirmLogout}
+        onCancel={handleCancelLogout}
+        confirmText="Đăng xuất"
+        cancelText="Hủy"
+      />
     </nav>
   );
 };

@@ -48,7 +48,7 @@ export default function Center({
       <g transform={`translate(0 ${gap / 2})`}>
         <Node
           id="da-hinh"
-          label="Đa hình"
+          label="Đa tình"
           fill="#00aaff"
           shape="rect"
           w={40}

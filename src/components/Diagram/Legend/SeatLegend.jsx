@@ -6,7 +6,7 @@ const LEGEND_DATA = [
   {
     title: "Standing:",
     items: [
-      { color: "#00aaff", label: "Đa sắc, Đa tình" },
+      { color: "#00aaff", label: "Đa tình" },
       { color: "#5bc0de", label: "Rực lửa 1, 2" },
       { color: "#f0ad4e", label: "Bí ẩn 1, 2" },
       { color: "#f07000", label: "Nham thạch 1, 2" },
@@ -43,7 +43,10 @@ export default function SeatLegend() {
           <div className={styles.legendItems}>
             {group.items.map((item, i) => (
               <div key={i} className={styles.legendItem}>
-                <span className={styles.colorBox} style={{ background: item.color }} />
+                <span
+                  className={styles.colorBox}
+                  style={{ background: item.color }}
+                />
                 <span>{item.label}</span>
               </div>
             ))}

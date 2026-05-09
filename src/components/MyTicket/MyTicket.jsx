@@ -73,13 +73,35 @@ export default function MyTickets() {
           return;
         }
 
-        const res = await fetch(
+        let res = await fetch(
           `/api/v1/tickets/user/${encodeURIComponent(ownerId)}`,
         );
-        const data = await res.json();
+        let data = await res.json();
 
         if (!res.ok) {
           throw new Error(data?.error || "Không thể tải vé.");
+        }
+        if (
+          Array.isArray(data) &&
+          data.length === 0 &&
+          user?.email &&
+          user.email !== ownerId
+        ) {
+          try {
+            const fallbackRes = await fetch(
+              `/api/v1/tickets/user/${encodeURIComponent(user.email)}`,
+            );
+            const fallbackData = await fallbackRes.json();
+            if (
+              fallbackRes.ok &&
+              Array.isArray(fallbackData) &&
+              fallbackData.length > 0
+            ) {
+              data = fallbackData;
+            }
+          } catch (e) {
+            // ignore fallback errors
+          }
         }
 
         const normalized = Array.isArray(data)

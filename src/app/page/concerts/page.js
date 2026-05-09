@@ -7,29 +7,105 @@ import SearchBar from "@/components/common/SearchBar/SearchBar";
 import FilterBar from "@/components/FilterBar/FilterBar";
 import FilterTags from "@/components/FilterTags/FilterTags";
 
+const API_BASE = "/api/v1";
+
+function normalizeTicketType(ticketType) {
+  if (!ticketType) return null;
+
+  return {
+    ...ticketType,
+    price: Number(
+      ticketType.price || ticketType.ticketPrice || ticketType.unitPrice || 0,
+    ),
+  };
+}
+
+function getLowestTicketPrice(ticketTypes) {
+  const prices = (ticketTypes || [])
+    .map((ticketType) => normalizeTicketType(ticketType)?.price || 0)
+    .filter((price) => Number.isFinite(price) && price > 0);
+
+  if (prices.length === 0) {
+    return null;
+  }
+
+  return Math.min(...prices);
+}
+
+async function fetchLowestTicketPrice(eventId) {
+  try {
+    const response = await fetch(
+      `${API_BASE}/events/${encodeURIComponent(eventId)}/ticket-types`,
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const payload = await response.json();
+    const ticketTypes = Array.isArray(payload?.data)
+      ? payload.data
+      : Array.isArray(payload)
+        ? payload
+        : [];
+
+    return getLowestTicketPrice(ticketTypes);
+  } catch {
+    return null;
+  }
+}
+
 export default function ConcertsPage() {
   const [events, setEvents] = useState([]);
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
-    fetch("http://localhost:8080/api/v1/events")
+    fetch(`${API_BASE}/events`)
       .then((res) => res.json())
-      .then((response) => {
+      .then(async (response) => {
         if (response.status === 200 && Array.isArray(response.data)) {
-          const formattedEvents = response.data.map((event) => ({
-            ...event,
-            _id: event.eventId || event.event_id || event.id,
-            name: event.name || event.title || event.event_name,
-            description: event.description || event.summary || "",
-            img: event.img || event.image || event.poster || "/poster.jpg",
-            minPrice: event.min_price || event.minPrice || 500000,
-            venue: {
-              name: event.venueName || event.venue_name || event.venue?.name || "",
-              city: event.city || event.venue?.city || "",
-            },
-            start_time: event.startTime || event.start_time || event.time || event.start || null,
-          }));
+          const formattedEvents = await Promise.all(
+            response.data.map(async (event) => {
+              const eventId = event.eventId || event.event_id || event.id;
+              const embeddedTicketTypes = Array.isArray(event.ticketTypes)
+                ? event.ticketTypes
+                : Array.isArray(event.ticket_types)
+                  ? event.ticket_types
+                  : [];
+
+              const embeddedLowestPrice =
+                getLowestTicketPrice(embeddedTicketTypes);
+              const fetchedLowestPrice =
+                embeddedLowestPrice ??
+                (eventId ? await fetchLowestTicketPrice(eventId) : null);
+              const fallbackMinPrice =
+                Number(event.min_price || event.minPrice || 0) || null;
+
+              return {
+                ...event,
+                _id: eventId,
+                name: event.name || event.title || event.event_name,
+                description: event.description || event.summary || "",
+                img: event.img || event.image || event.poster || "/poster.jpg",
+                minPrice: fetchedLowestPrice ?? fallbackMinPrice,
+                venue: {
+                  name:
+                    event.venueName ||
+                    event.venue_name ||
+                    event.venue?.name ||
+                    "",
+                  city: event.city || event.venue?.city || "",
+                },
+                start_time:
+                  event.startTime ||
+                  event.start_time ||
+                  event.time ||
+                  event.start ||
+                  null,
+              };
+            }),
+          );
 
           setEvents(formattedEvents);
         }
