@@ -14,7 +14,7 @@ export default function Page() {
     setEvent(null);
 
     /* Backend code - uncomment when backend is available:
-        fetch(`/api/events/${id}`)
+        fetch(`http://localhost:8080/api/user/events/${id}`)
         .then(res => res.json())
         .then(data => setEvent(data));
         */

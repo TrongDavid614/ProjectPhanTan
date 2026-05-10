@@ -196,7 +196,7 @@ src/main/java/com/yourcompany/controller/OrderController.java
    ├─ Displays QR code with countdown timer
    └─ User scans QR → VNPAY processes payment
 
-4. VNPAY CALLBACK (/api/v1/payment/vnpay-return)
+4. VNPAY CALLBACK (/api/user/payment/vnpay-return)
    ├─ VNPAY sends IPN with responseCode & vnp_TransactionNo
    ├─ Backend verifies HMAC signature
    ├─ If success (responseCode=="00"):

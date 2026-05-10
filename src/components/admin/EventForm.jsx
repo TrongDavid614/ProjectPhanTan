@@ -37,8 +37,10 @@ export default function EventForm({ initial = null, onSaved, onCancel }) {
     setError("");
 
     try {
-      if (initial?.id) {
-        const res = await updateAdminEvent(initial.id, form);
+      // Support both `eventId` (backend) and legacy `id` keys from initial
+      const eventId = initial?.eventId || initial?.id;
+      if (eventId) {
+        const res = await updateAdminEvent(eventId, form);
         onSaved?.(res);
       } else {
         const res = await createAdminEvent(form);

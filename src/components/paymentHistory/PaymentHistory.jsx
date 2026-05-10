@@ -16,6 +16,8 @@ export default function PaymentHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const API_URL = "http://localhost:8080";
+
   useEffect(() => {
     async function fetchHistory() {
       try {
@@ -37,7 +39,7 @@ export default function PaymentHistory() {
 
         // Fetch by ownerId first
         let res = await fetch(
-          `/api/v1/orders/history/${encodeURIComponent(ownerId)}`,
+          `${API_URL}/api/v1/orders/history/${encodeURIComponent(ownerId)}`,
         );
         let data = [];
         try {
@@ -60,7 +62,7 @@ export default function PaymentHistory() {
         ) {
           try {
             const fbRes = await fetch(
-              `/api/v1/orders/history/${encodeURIComponent(user.email)}`,
+              `${API_URL}/api/v1/orders/history/${encodeURIComponent(user.email)}`,
             );
             const fbData = await fbRes.json();
             if (fbRes.ok && Array.isArray(fbData) && fbData.length > 0) {

@@ -18,7 +18,7 @@ export default function ConcertDetailPage({ params }) {
     /* Backend code - uncomment when backend is available:
     const fetchEvent = async () => {
       try {
-        const res = await fetch(`/api/events/${id}`);
+        const res = await fetch(`http://localhost:8080/api/user/events/${id}`);
         const result = await res.json();
         setData(result);
       } catch (err) {

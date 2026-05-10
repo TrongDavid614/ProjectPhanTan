@@ -7,7 +7,7 @@ import SearchBar from "@/components/common/SearchBar/SearchBar";
 import FilterBar from "@/components/FilterBar/FilterBar";
 import FilterTags from "@/components/FilterTags/FilterTags";
 
-const API_BASE = "/api/v1";
+const API_BASE = "http://localhost:8080/api/user";
 
 function normalizeTicketType(ticketType) {
   if (!ticketType) return null;

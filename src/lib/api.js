@@ -14,8 +14,25 @@ const api = axios.create({
 
 const unwrapResponse = (response) => response?.data?.data ?? response?.data;
 
+const getCurrentOwnerIdentifier = () => {
+  if (typeof window === "undefined") return "";
+
+  try {
+    const raw = window.localStorage.getItem("user");
+    if (!raw) return "";
+
+    const user = JSON.parse(raw);
+    return user?.userId || user?.user_id || user?.id || user?.email || "";
+  } catch {
+    return "";
+  }
+};
+
 export const getAdminDashboardStats = async () => {
-  const response = await api.get("/stats");
+  const owner = getCurrentOwnerIdentifier();
+  const response = await api.get("/stats", {
+    params: owner ? { owner } : undefined,
+  });
   const data = unwrapResponse(response) || {};
 
   return {
@@ -27,7 +44,10 @@ export const getAdminDashboardStats = async () => {
 };
 
 export const getAdminEvents = async () => {
-  const response = await api.get("/events");
+  const owner = getCurrentOwnerIdentifier();
+  const response = await api.get("/events", {
+    params: owner ? { owner } : undefined,
+  });
   return unwrapResponse(response);
 };
 
@@ -51,7 +71,10 @@ export const filterAdminEventsByStatus = async (status) => {
 };
 
 export const createAdminEvent = async (payload) => {
-  const response = await api.post("/events", payload);
+  const owner = getCurrentOwnerIdentifier();
+  const response = await api.post("/events", payload, {
+    params: owner ? { owner } : undefined,
+  });
   return unwrapResponse(response);
 };
 

@@ -15,7 +15,7 @@ export default function ProfileSidebar() {
       setUserName(user?.name || "Người dùng");
       console.log("User:", user);
     } else {
-      window.location.href = "/page/login";
+      window.location.href = "/user/login";
     }
   }, []);
   const [avatarSrc, setAvatarSrc] = useState("/image 22.svg");
@@ -63,7 +63,7 @@ export default function ProfileSidebar() {
           onClick={() => {
             localStorage.removeItem("token");
             localStorage.removeItem("user");
-            window.location.href = "/page/login";
+            window.location.href = "/user/login";
           }}
         >
           <Image src="/logout.svg" alt="Logout" width={30} height={30} />

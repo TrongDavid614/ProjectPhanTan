@@ -53,7 +53,7 @@ const Navbar = () => {
   const handleConfirmLogout = () => {
     setShowLogoutConfirm(false);
     logout();
-    router.push("/page/login");
+    router.push("/user/login");
   };
 
   const handleCancelLogout = () => {
@@ -93,7 +93,7 @@ const Navbar = () => {
           {!isLoggedIn ? (
             <button
               className={styles.loginButton}
-              onClick={() => router.push("/page/login")}
+              onClick={() => router.push("/user/login")}
             >
               Đăng nhập
             </button>

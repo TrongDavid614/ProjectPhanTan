@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import SelectSeatUI from "./SelectSeatUI";
 
-const API_BASE = "/api/v1";
+const API_BASE = "http://localhost:8080/api/user";
 
 function normalizeEvent(event) {
   if (!event) return null;
@@ -117,7 +117,7 @@ export default function SelectSeatSmartPage() {
 
         const eventsPayload = await fetchFirstWorkingJson([
           `${API_BASE}/events`,
-          `/api/events`,
+          `${API_BASE}/events`,
         ]);
 
         const events = Array.isArray(eventsPayload?.data)

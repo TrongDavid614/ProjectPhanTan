@@ -13,7 +13,7 @@ import styles from "./checkout.module.css";
 
 const HOLD_SECONDS = 10 * 60;
 const VOUCHER_MODAL_EXIT_MS = 280;
-const API_BASE = "/api/v1";
+const API_BASE = "http://localhost:8080/api/user";
 
 function formatDateRange(isoStart) {
   if (!isoStart) return "Đang cập nhật";

@@ -49,7 +49,7 @@ function formatCountdown(ms) {
   const seconds = String(totalSeconds % 60).padStart(2, "0");
   return `${minutes}:${seconds}`;
 }
-const PAYMENT_API_BASE = "/api/v1";
+const PAYMENT_API_BASE = "http://localhost:8080/api/user";
 
 function PaymentPageContent() {
   const router = useRouter();

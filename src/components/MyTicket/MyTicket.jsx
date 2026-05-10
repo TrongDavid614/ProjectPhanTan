@@ -56,6 +56,8 @@ export default function MyTickets() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const API_URL = "http://localhost:8080";
+
   useEffect(() => {
     async function fetchTickets() {
       try {
@@ -74,7 +76,7 @@ export default function MyTickets() {
         }
 
         let res = await fetch(
-          `/api/v1/tickets/user/${encodeURIComponent(ownerId)}`,
+          `${API_URL}/api/v1/tickets/user/${encodeURIComponent(ownerId)}`,
         );
         let data = await res.json();
 
@@ -89,7 +91,7 @@ export default function MyTickets() {
         ) {
           try {
             const fallbackRes = await fetch(
-              `/api/v1/tickets/user/${encodeURIComponent(user.email)}`,
+              `${API_URL}/api/v1/tickets/user/${encodeURIComponent(user.email)}`,
             );
             const fallbackData = await fallbackRes.json();
             if (

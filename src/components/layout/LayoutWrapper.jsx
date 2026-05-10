@@ -16,7 +16,6 @@ export default function LayoutWrapper({ children }) {
     normalized === "/" ||
     normalized === "/highlight" ||
     normalized.startsWith("/admin") ||
-    normalized === "/page/login" ||
     normalized === "/page/register" ||
     normalized === "/page/admin-register" ||
     normalized === "/user/login" ||
